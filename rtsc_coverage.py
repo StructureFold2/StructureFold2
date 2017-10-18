@@ -76,8 +76,8 @@ def write_batch_coverage(batch_coverage_dictionary):
 
 def main():
     parser = argparse.ArgumentParser(description='Creates <.csv> of stop coverages from <.rtsc> files in the directory')
-    parser.add_argument("index",type=str,help="<str> <.fasta> file used to generate the <.rtsc>")
-    parser.add_argument('-single',default = None, help = '<str> Operate on this single file, rather than the directory')
+    parser.add_argument("index",type=str,help="<.fasta> file used to generate the <.rtsc>")
+    parser.add_argument('-single',default = None, help = 'Operate on this single file, rather than the directory')
     parser.add_argument('-bases',type=str,default='AC', help='[default = AC] Coverage Specificity')
     args = parser.parse_args()
     if args.single != None:
