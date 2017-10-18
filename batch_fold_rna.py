@@ -10,7 +10,7 @@ from optparse import OptionParser
 import math
 import glob
 import threading
-
+from itertools import islice
 
 
 class subThread (threading.Thread):
