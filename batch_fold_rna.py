@@ -256,7 +256,9 @@ def progress_bar(output_directory, thres):
             ld = lnew
         if stop:
             sys.stdout.write(']')
+            print("\n")
             break
+
 
 def main():
     parser = argparse.ArgumentParser(description='Predict RNA structure from sequence (with restraints)\nAll output files are in the output_files_[temperature] folder', formatter_class=RawTextHelpFormatter)
