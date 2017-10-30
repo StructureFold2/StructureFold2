@@ -7,6 +7,7 @@ transcripts between two <.react> files.
 
 #Imports
 import argparse
+import os
 from itertools import islice
 from collections import Counter
 
@@ -118,7 +119,8 @@ def main():
             c_tiny[args.single] = control[args.single]
             e_tiny[args.single] = experimental[args.single]
             out_data = reactivity_pattern_delta(c_tiny,e_tiny,args.n,args.tp,args.raw)
-            outfyle = '_'.join([args.control.replace('.react',''), args.experimental.replace('.react',''),args.single,name_bit])+'_delta.csv'
+            base_name = [x.split(os.sep)[-1].replace('.react','') for x in [args.control,args.experimental]]
+            outfyle = '_'.join(base_name+[args.single,name_bit])+'_delta.csv'
             write_out_results(out_data,outfyle)
         except KeyError:
             print 'Your query key {} was not found in {}.'.format(args.single,args.react)
@@ -126,7 +128,8 @@ def main():
     #All Mode
     elif args.all_transcripts and not args.single and not args.multi:
         out_data = reactivity_pattern_delta(control,experimental,args.n,args.tp,args.raw)
-        outfyle = '_'.join([args.control.replace('.react',''), args.experimental.replace('.react',''),'all',name_bit])+'_delta.csv'
+        base_name = [x.split(os.sep)[-1].replace('.react','') for x in [args.control,args.experimental]]
+        outfyle = '_'.join(base_name+['all',name_bit])+'_delta.csv'
         write_out_results(out_data,outfyle)
 
     #Specified Mode
@@ -135,7 +138,8 @@ def main():
         clean_dictionary(keepers,control)
         clean_dictionary(keepers,experimental)
         out_data = reactivity_pattern_delta(control,experimental,args.n,args.tp,args.raw)
-        outfyle = '_'.join([args.control.replace('.react',''), args.experimental.replace('.react',''),args.multi.split('.')[0],name_bit])+'_delta.csv'
+        base_name = [x.split(os.sep)[-1].replace('.react','') for x in [args.control,args.experimental]]
+        outfyle = '_'.join(base_name+[args.multi.split('.')[0],name_bit])+'_delta.csv'
         write_out_results(out_data,outfyle)
 
     #In case of Derp
