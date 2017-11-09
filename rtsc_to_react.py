@@ -124,10 +124,10 @@ def check_extension(astring,extension):
 
 def main():
     parser = argparse.ArgumentParser(description='Generates <.react> files from two <.rtsc> files')
-    parser.add_argument('control',type=str,help='Control <.react> file')
-    parser.add_argument('treatment',type=str,help='Treatment <.react> file')
+    parser.add_argument('control',type=str,help='Control <.rtsc> file')
+    parser.add_argument('treatment',type=str,help='Reagent <.rtsc> file')
     parser.add_argument('fasta',type=str,help='Transcript <.fasta> file')
-    parser.add_argument('-threshold',type=float,default=7.0,help='Reactivity Cap')
+    parser.add_argument('-threshold',type=float,default=7.0,help='[default = 7.0] Reactivity Cap')
     parser.add_argument('-ln_off',action='store_true', help='Do not take the natural log of the stop counts')
     parser.add_argument('-nrm_off',action='store_true',help='Turn off 2-8'+u"\uFF05"+' normalization of the derived reactivity')
     parser.add_argument('-save_fails',action='store_true',help='Log transcripts with zero or missing scales')
