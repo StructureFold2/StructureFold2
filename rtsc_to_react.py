@@ -67,7 +67,7 @@ def generate_normalization_scale(derived_reactivities,transcript_seqs,specificit
         sequence = transcript_seqs[transcript]
         accepted = sorted([reactivities[k] for k in range(1,len(reactivities)) if sequence[k-1] in specificity],reverse=True)
         top = accepted[int(len(accepted)*0.02):int(len(accepted)*0.1)]
-        top_average = sum(top)/len(top)
+        top_average = sum(top)/len(top) if len(top) > 0 else 0
         if top_average > 0:
             data[transcript] = top_average
     return data
