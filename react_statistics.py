@@ -77,7 +77,7 @@ def generate_statistics(reactivity_info,react_fyles,trim_number,min_len):
         new_value = []
         for item in order:
             try:
-                numbers = [float(x) for x in subdict[item] if x!= 'NA'][:-trim_number] if trim_number else [float(x) for x in subdict[item] if x!= 'NA']
+                numbers = [float(x) for x in subdict[item][:-trim_number] if x!= 'NA'] if trim_number else [float(x) for x in subdict[item] if x!= 'NA']
                 if len(numbers) < min_len:
                     new_value.extend(['NA']*4)
                 else:
