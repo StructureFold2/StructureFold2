@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 '''
-Info soon!
+Script takes two <.react> files and a <.fasta> file and a static nucleotide motif.
+Lists all occurances of that motif along with surrounding 5' and 3' nucleotides, along with the reactivity values in both 
+<.reacts> as well as the difference and other statistics.
 '''
 
 #Imports
@@ -125,7 +127,7 @@ def dump_csv(information,outfile,motif,fpbuffer,tpbuffer):
             for item in v:
                 base.extend(item)
             #
-            z_numbers = [x for x in v[3][fpbuffer:len(v)-tpbuffer] if x != 'NA']
+            z_numbers = [x for x in v[3][fpbuffer:-tpbuffer] if x != 'NA']
             change = sum(z_numbers)
             positive = sum([n for n in z_numbers if n > 0])
             negative = sum([n for n in z_numbers if n < 0])
