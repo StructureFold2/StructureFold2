@@ -66,15 +66,14 @@ def create_temp_seq(id_s, seqs, path):
             fh.write(seqs[id_s]+"\n")
             return True
         else:
-            print(id_s+" not in the sequence set!")
             id_n.append(id_s)
             return False
 
 #create temporary constraint file (fasta) for folding
 def create_temp_react(id_s, react, path, shift, thres, mode):
     if id_s not in react:
-        print(id_s+" not in the data of react!")
         cons_n.append(id_s)
+        os.system("rm "+os.path.join(path, id_s+"_temp.fa"))
         return False
     else:
         if not thres:
@@ -264,7 +263,7 @@ def main():
     parser = argparse.ArgumentParser(description='Predict RNA structure from sequence (with restraints)\nAll output files are in the output_files_[temperature] folder', formatter_class=RawTextHelpFormatter)
     parser.add_argument('id_f', metavar="<RNA_IDs>",help='List of RNAs(IDs) to predict RNA structure')
     parser.add_argument('seq', metavar="<RNA_sequence>",help='File contains all the RNA sequences of the RNA IDs to be predicted (fasta format), e.g. Reference Transcriptome')
-    parser.add_argument('-T', '--Temperature', dest="temperature", default = 310.15, help='The temperature under which the RNA structures are predicted', type = float)
+    parser.add_argument('-T', '--Temperature', dest="temperature", default = 310.15, help='The temperature under which the RNA structures are predicted [Default 310.15 K]', type = float)
     parser.add_argument('program', metavar="<Program_mode>",help='The program used for RNA structure prediction: 1 for RNAstructure; 2 for Vienna package')
     parser.add_argument("-r", "--reactivity", dest="Constraint_file", default = None, help='Reactivity file (.react file) used as constrants from prediction')
     parser.add_argument("-th", "--threshold", dest="thres", default = None, type = float, help='Threshold for reactivity. Any nucleotide with reactivity over threshold will be set as single stranded. Once threshold is set, reactivities will be converted into hard contraints')
