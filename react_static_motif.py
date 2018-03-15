@@ -95,9 +95,9 @@ def cold_stepper(fasta_seqs,control_reacts,experimental_reacts,motif,fpbuffer,tp
             indexes = generate_motif_coords(v,motif)
             for i in indexes:
                 new_seq = buffered_pull(v,i,fpbuffer,tpbuffer,'-')
-                con_numbs = buffered_pull(control,i,fpbuffer,tpbuffer,'NA')
-                exp_numbs = buffered_pull(experimental,i,fpbuffer,tpbuffer,'NA')
-                chg_nubms = buffered_pull(change,i,fpbuffer,tpbuffer,'NA')
+                con_numbs = buffered_pull(control,i,fpbuffer,tpbuffer,'-')
+                exp_numbs = buffered_pull(experimental,i,fpbuffer,tpbuffer,'-')
+                chg_nubms = buffered_pull(change,i,fpbuffer,tpbuffer,'-')
                 #q_key = '_'.join([k, '~'.join([str(i[0]+1),str(i[1]+1)])])
                 q_key = (k,str(i[0]+1),str(i[1]+1))
                 sanity_area[q_key] = [new_seq,con_numbs,exp_numbs,chg_nubms]
@@ -138,6 +138,34 @@ def dump_csv(information,outfile,motif,fpbuffer,tpbuffer):
             base = [str(z) for z in base]
             g.write(','.join(base)+'\n')
 
+def check_extension(astring,extension):
+    '''Checks and fixes things to have the proper extension'''
+    out_string = astring if astring.endswith(extension) else astring + extension
+    return out_string
+
+
+def write_out_fasta_s_motif(info,outfyle='out.fasta',LW=80):
+    '''Writes out the <.fasta> file, names are just transcript+step'''
+    with open(outfyle,'w') as g:
+        for name,data in info.items():
+            seq_name = '_'.join(name)
+            seq = ''.join([base for base in data[0] if base != '-'])
+            g.write('>' + seq_name + '\n')
+            for i in xrange(0,len(seq),LW):
+                g.write(seq[i:i+LW] + '\n') 
+
+def write_react_fork(info,control_out,experimental_out):
+    ''''''
+    with open(control_out,'w') as g, open(experimental_out,'w') as h:
+        for name, data, in info.items():
+            seq_name = '_'.join(name)
+            control_data = [value for value in data[1] if value !='-']
+            exp_data = [value for value in data[2] if value !='-']
+            g.write(seq_name+'\n')
+            h.write(seq_name+'\n')
+            g.write('\t'.join([str(q) for q in control_data])+'\n')
+            h.write('\t'.join([str(z) for z in exp_data])+'\n')
+
 #Main Function
 def main():
     parser = argparse.ArgumentParser(description='Searches and returns reactivity vectors for a targeted motif')
@@ -145,15 +173,17 @@ def main():
     parser.add_argument('experimental',type=str,help='experimental <.react> file')
     parser.add_argument('fasta',type=str,help='<.fasta> to pull sequences from')
     parser.add_argument('motif',type=str,help='nucleotide motif')
-    parser.add_argument('-fp',default=5,type=int, help='Bases to include 5\' of the motif')
-    parser.add_argument('-tp',default=5,type=int, help='Bases to include 3\' of the motif')
+    parser.add_argument('-fp',default=5,type=int, help='[default = 5] Bases to include 5\' of the motif')
+    parser.add_argument('-tp',default=5,type=int, help='[default = 5] Bases to include 3\' of the motif')
     parser.add_argument('-outname',type=str,default=None, help='Change the name of the outfile, overrides default')
     parser.add_argument('-restrict',default = None, help = '<.txt > Limit analysis to these specific transcripts')
+    parser.add_argument('-fastaout',action="store_true",default=False,help = 'Write windows to <.fasta> format as well')
+    parser.add_argument('-reactout',action="store_true",default=False,help = 'Write accompanying <.react> files as well')
     args = parser.parse_args()
     
     #Generate Name
     default_name = '_'.join([args.control.replace('.react',''),args.experimental.replace('.react',''),args.motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.csv'
-    out_name = default_name if args.outname == None else args.outname
+    out_name = default_name if args.outname == None else check_extension(args.outname,'.csv')
     
     #Read in both groups of reactivities, fasta file with sequences
     control_reactivty,experimental_reactivty = read_reactivities(args.control),read_reactivities(args.experimental)
@@ -166,10 +196,20 @@ def main():
 
     #Pop windows
     quiet_noises = cold_stepper(target_seqs,control_reactivty,experimental_reactivty,args.motif,args.fp,args.tp)
-    
-    #Write
+
+    #Output Suite
+    #Output for <.csv>
     dump_csv(quiet_noises,out_name,args.motif,args.fp,args.tp)
 
+    #Output for <.fasta>
+    if args.fastaout == True:
+        write_out_fasta_s_motif(quiet_noises,out_name.replace('.csv','.fasta'))
+    
+    #Output for <.react>
+    if args.reactout == True:
+        new_control_file = '_'.join([args.control.replace('.react',''),args.motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
+        new_exp_file = '_'.join([args.experimental.replace('.react',''),args.motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
+        write_react_fork(quiet_noises,new_control_file,new_exp_file)
 
 
 if __name__ == '__main__': 

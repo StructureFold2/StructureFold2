@@ -136,24 +136,53 @@ def write_react(react_info,outfyle='out.react'):
             g.write(transcript+'\n')
             g.write('\t'.join([str(q) for q in data])+'\n')
 
+def make_list_strict(mega_list):
+    '''derp'''
+    common_keys,new_list = {},[]
+    while len(mega_list) !=0:
+        item = mega_list[0]
+        if item[3] in common_keys:
+            del mega_list[0]
+        else:
+            common_keys[item[3]] = None
+            new_list.append(item)
+            del mega_list[0]
+    return new_list
+
+
+def write_react_fork(info,control_out,experimental_out):
+    '''Writes two new reacts'''
+    with open(control_out,'w') as g, open(experimental_out,'w') as h:
+        for data in info:
+            seq_name = '_'.join([data[3],data[4]])
+            control_data = data[5]
+            exp_data = data[6]
+            g.write(seq_name+'\n')
+            h.write(seq_name+'\n')
+            g.write('\t'.join([str(q) for q in control_data])+'\n')
+            h.write('\t'.join([str(z) for z in exp_data])+'\n')
+
 #Main Function
 def main():
     parser = argparse.ArgumentParser(description='Generate Windows of changing reactivity, will subtract control from experimental')
-    parser.add_argument("control",type=str,help="control <.react> file")
-    parser.add_argument("experimental",type=str,help="experimental <.react> file")
-    parser.add_argument("fasta",type=str,help="<.fasta> to pull sequences from")
+    parser.add_argument('control',type=str,help='control <.react> file')
+    parser.add_argument('experimental',type=str,help='experimental <.react> file')
+    parser.add_argument('fasta',type=str,help='<.fasta> to pull sequences from')
     parser.add_argument('-wlen',type=int, default=50, help='[default = 50] Window Length')
     parser.add_argument('-wstep',type=int, default=20, help='[default = 20] Window Step')
     parser.add_argument('-outname',type=str,default=None, help='Change the name of the outfile, overrides default')
     parser.add_argument('-restrict',default = None, help = '<.txt > Limit analysis to these specific transcripts')
-    parser.add_argument('-filter_loss',action="store_true",default=False,help = 'Filter output to largest reactivity losses')
-    parser.add_argument('-filter_gain',action="store_true",default=False,help = 'Filter output to largest reactivity gains')
-    parser.add_argument('-filter_delta',action="store_true",default=False,help = 'Filter output to most changed reactivity')
-    parser.add_argument('-perc',type=int, default=25, help='[default = 25] Filter to this percent of windows')
-    parser.add_argument('-fastaout',action="store_true",default=False,help = 'Write windows to <.fasta> format as well')
-    parser.add_argument('-reactout',action="store_true",default=False,help = 'Write accompanying <.react> files as well')
+    parser.add_argument('-sort_loss',action='store_true',default=False,help = 'Sort windows by reactivity loss')
+    parser.add_argument('-sort_gain',action='store_true',default=False,help = 'Sort windows by reactivity gain')
+    parser.add_argument('-sort_delta',action='store_true',default=False,help = 'Sort windows by reactivity change')
+    parser.add_argument('-perc',type=int, default=100, help='[default = 100] Percentage of sorted windows to retain')
+    parser.add_argument('-singular',action='store_true',default=False,help = 'Limit to first window for each transcript after sorting')
+    parser.add_argument('-strict',action='store_true',default=False,help = 'Sorts remove non gain/loss/delta before perc truncation')
+    parser.add_argument('-fastaout',action='store_true',default=False,help = 'Write windows in <.fasta> format as well')
+    parser.add_argument('-reactout',action='store_true',default=False,help = 'Write accompanying <.react> files as well')
     args = parser.parse_args()
-    #
+    
+    #Generate Outfile name
     default_name = '_'.join([args.control.replace('.react',''),args.experimental.replace('.react',''),str(args.wlen)+'win',str(args.wstep)+'step'])+'.csv'
     out_name = default_name if args.outname == None else check_extension(args.outname,'.csv')
     
@@ -166,45 +195,51 @@ def main():
         covered = get_covered_transcripts(args.restrict)
         filter_dictonary(target_seqs,covered)
     
-    #Let's get some hot_spots
+    #Generate Windows
     loud_noises = hot_stepper(target_seqs,control_reactivty,experimental_reactivty,args.wlen,args.wstep)
 
     #Apply filter - they could give multiple, it will work, but it won't really make all that much sense
-    if args.filter_loss == True:
+    if args.sort_loss == True:
+        loud_noises = loud_noises if args.strict == False else [item for item in loud_noises if item[0] < 0]
         loud_noises = sorted(loud_noises,reverse=False)[0:int((float(args.perc)/100)*len(loud_noises))]
         out_name = out_name.replace('.csv','_'+str(args.perc)+'loss.csv')
 
-    if args.filter_gain == True:
+    if args.sort_gain == True:
+        loud_noises = loud_noises if args.strict == False else [item for item in loud_noises if item[0] > 0]
         loud_noises = sorted(loud_noises,reverse=True)[0:int((float(args.perc)/100)*len(loud_noises))]
         out_name = out_name.replace('.csv','_'+str(args.perc)+'gain.csv')
     
-    if args.filter_delta == True:
+    if args.sort_delta == True:
+        loud_noises = loud_noises if args.strict == False else [item for item in loud_noises if item[0] != 0]
         loud_noises = sorted(loud_noises,reverse=True,key=lambda x:x[1])[0:int((float(args.perc)/100)*len(loud_noises))]
         out_name = out_name.replace('.csv','_'+str(args.perc)+'delta.csv')
     
-    #Output
+    #Singular filter if applicable
+    if any([args.sort_delta,args.sort_loss,args.sort_gain]) and args.singular:
+        loud_noises = make_list_strict(loud_noises)
+
+    #Output Suite
+    #Output for <.csv>
     ultra_dumper(loud_noises,out_name)
     
-    #Output Suite for <.fasta>
+    #Output for <.fasta>
     if args.fastaout == True:
         write_out_fasta(loud_noises,out_name.replace('.csv','.fasta'))
     
-    #Output Suite for <.react>
+    #Output for <.react>
     if args.reactout == True:
-        control_out,experimental_out = fork_react_dicts(loud_noises)
         new_control_file = '_'.join([args.control.replace('.react',''),str(args.wlen)+'win',str(args.wstep)+'step'])+'.react'
         new_exp_file = '_'.join([args.experimental.replace('.react',''),str(args.wlen)+'win',str(args.wstep)+'step'])+'.react'
-        if args.filter_loss == True:
+        if args.sort_loss == True:
             new_control_file = new_control_file.replace('.react','_'+str(args.perc)+'loss.react')
             new_exp_file = new_exp_file.replace('.react','_'+str(args.perc)+'loss.react')
-        if args.filter_gain == True:
+        if args.sort_gain == True:
             new_control_file = new_control_file.replace('.react','_'+str(args.perc)+'gain.react')
             new_exp_file = new_exp_file.replace('.react','_'+str(args.perc)+'gain.react')
-        if args.filter_delta == True:
+        if args.sort_delta == True:
             new_control_file = new_control_file.replace('.react','_'+str(args.perc)+'delta.react')
             new_exp_file = new_exp_file.replace('.react','_'+str(args.perc)+'delta.react')
-        write_react(control_out,new_control_file)
-        write_react(experimental_out,new_exp_file)
+        write_react_fork(loud_noises,new_control_file,new_exp_file)
 
 if __name__ == '__main__': 
     main()
