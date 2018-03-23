@@ -122,6 +122,12 @@ def check_extension(astring,extension):
     out_string = astring if astring.endswith(extension) else astring + extension
     return out_string
 
+def filter_dictonary(in_dict,filter_dict):
+    '''Removes entries from a dictionary'''
+    for k in in_dict.keys():
+        if k not in filter_dict:
+            del in_dict[k]
+
 def main():
     parser = argparse.ArgumentParser(description='Generates <.react> files from two <.rtsc> files')
     parser.add_argument('control',type=str,help='Control <.rtsc> file')
