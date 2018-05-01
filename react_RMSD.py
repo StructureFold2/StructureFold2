@@ -67,8 +67,8 @@ def calculate_NRMSD(vector_1,vector_2):
         except:
             continue
     #Divide total difference by total N, take square root, apply normalization.
-    average_react = sum(values)/2/total_n
-    result = (eq_top/total_n)**0.5/average_react if total_n != 0 else 'NA'
+    average_react = sum(values)/2/total_n if total_n !=0 else 0
+    result = (eq_top/total_n)**0.5/average_react if total_n != 0 and average_react !=0 else 'NA'
     return result
 
 def mass_calculate_RMSD(data1,data2):
