@@ -154,7 +154,7 @@ def main():
     if args.restrict != None:
         covered = get_covered_transcripts(args.restrict)
         filter_dictonary(control_data,covered)
-        filter_dictonary(experimental_data,covered)
+        filter_dictonary(treatment_data,covered)
     
     #Calculate Derived Reactivity
     data = calculate_raw_reactivity(control_data,treatment_data,args.ln_off)
