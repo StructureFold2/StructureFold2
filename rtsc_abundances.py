@@ -1,11 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''
-Converts a <.rtsc> to a <.csv> of relative transcript abundances (RTSC hits per kilobase per million reads). 
-These abundances are approximate and traditional RNA-seq is more precise at this task than Structure-Seq libraries, 
-but for a quick analysis or inlieu of a parallel RNA-seq experiment, this tool will yeild a good approximation.
-Current math:
-Number of RSTC hits*1000*1000000/total reads in file*length of transcript
+Converts <.rtsc> to <.csv> of relative transcript abundances. 
+Traditional RNA-seq may be more precise at this task than Structure-Seq libraries.
 '''
 
 #Imports
@@ -22,29 +19,58 @@ def read_in_total_stops(afile):
             if not next_n_lines:
                 break
             transcript,stops,derp = [n.strip() for n in next_n_lines]
-            information[transcript] = (sum(int(x) if x !='NA' else 0.0 for x in stops.split('\t')),len(stops))
+            expanded_stops = [float(x) for x in stops.split('\t')]
+            information[transcript] = (sum(expanded_stops),len(expanded_stops))
     return information
 
-def dump_dictionary(adict,outfyle,total_n):
-    '''Writes out the data'''
+def values_to_RPKM(data):
+    '''Calculates RPKM or Reads Per Kilobase per Million reads'''
+    normalize,RPKM_values = sum(v[0] for v in data.values()),{}
+    for k, v in data.items():
+        RPKM_value = (float(v[0])*1000*1000000)/(v[1]*normalize)
+        RPKM_values[k] = RPKM_value
+    return RPKM_values
+
+def values_to_TPM(data):
+    '''Calculates TPM or Transcripts Per Kilobase Million reads'''
+    TPM_values = {}
+    reads_per_kb = dict([(k,v[0]/(float(v[1])/1000)) for k, v in data.items()])
+    normalize = sum(reads_per_kb.values())/1000000
+    for k, v in reads_per_kb.items():
+        TPM_values[k] = v/normalize
+    return TPM_values
+
+def write_data(adict,outfyle,data_unit):
+    '''Writes the data to a <.csv>'''
+    header = ','.join(['transcript',outfyle.replace('.csv','')])
     with open(outfyle,'w') as g:
-        g.write(','.join(['transcript',outfyle.replace('_abundances.csv','')+'_'+'RTPKM'])+'\n')
-        for k, v in adict.items():
-            number = (float(v[0])*1000*1000000)/(v[1]*total_n)
-            g.write(','.join([k,str(number)])+'\n')
+        g.write(header+'\n')
+        for transcript,abundance_stat in adict.items():
+            g.write(','.join([transcript,str(abundance_stat)])+'\n')
 
 def main():
     parser = argparse.ArgumentParser(description='Determines approximate transcript abundance based on <.rtsc> files.')
-    parser.add_argument('-rtsc',default = None, help = 'Operate on these files, rather than the directory')
+    parser.add_argument('mode',type=str.upper, choices = ['RPKM','TPM'])
+    parser.add_argument('-f',default = None, nargs='+', help = 'Specifc <.rtsc> to operate on')
     args = parser.parse_args()
-    #Files to operate on
-    fyle_lyst = sorted(glob.glob('*.rtsc')) if args.rtsc == None else sorted(args.rtsc)
-    #Loop
+
+    #Files to operate on, dictionary of functions
+    fyle_lyst = sorted(glob.glob('*.rtsc')) if args.f == None else sorted(args.f)
+    abundance_methods = {'RPKM':values_to_RPKM,'TPM':values_to_TPM}
+
+    #Iterate through file(s) 
     for fyle in fyle_lyst:
-        data = read_in_total_stops(fyle)
-        total_number = sum(v[0] for v in data.values())
-        new_fyle = fyle.replace('.rtsc','')+'_abundances.csv'
-        dump_dictionary(data,new_fyle,total_number)
+        data,new_fyle = read_in_total_stops(fyle),fyle.replace('.rtsc','_'+args.mode+'.csv')
+        processed_data = abundance_methods[args.mode](data)
+        write_data(processed_data,new_fyle,args.mode)
+
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+ 
