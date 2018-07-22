@@ -52,8 +52,8 @@ def write_out_csv(composition_dictionary,out_fyle='fasta_comp.csv'):
 
 def main():
     parser = argparse.ArgumentParser(description='Creates <.csv> of sequence compositions from <.fasta> files in the directory')
-    parser.add_argument('-single',default = None, help = '<str> Operate on this single file')
-    parser.add_argument('-suffix',type=str,default='composition', help='<str> [default = composition] <.csv> file suffix')
+    parser.add_argument('-single',default = None, help = 'Operate on this single file')
+    parser.add_argument('-suffix',type=str,default='composition', help='[default = composition] <.csv> file suffix')
     args = parser.parse_args()
     if args.single != None:
         sequences = read_in_fasta(args.single)

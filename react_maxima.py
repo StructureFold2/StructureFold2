@@ -96,9 +96,9 @@ def main():
     parser = argparse.ArgumentParser(description='Compares the reactivity maxima of every transcript between two <.react> files')
     parser.add_argument("react1",type=str,help="<.react> File for condition 1")
     parser.add_argument("react2",type=str,help="<.react> File for condition 2")
-    parser.add_argument('-restrict',default = None, help = '<.txt > Limit analysis to these specific transcripts')
-    parser.add_argument('-maxima',type=int,default=20, help='<int> [default = 20] Number of maxima to pick from both transcripts')
-    parser.add_argument('-wiggle',type=int,default=3, help='<int> [default = 3] Number of bases maxima can be off by')
+    parser.add_argument('-restrict',default = None, help = 'Limit analysis to these specific transcripts')
+    parser.add_argument('-maxima',type=int,default=20, help='[default = 20] Number of maxima to pick from both transcripts')
+    parser.add_argument('-wiggle',type=int,default=3, help='[default = 3] Number of bases maxima can be off by')
     args = parser.parse_args()
     
     #Read in a restrictive list, if provided
@@ -111,7 +111,7 @@ def main():
     fused = maxima_compare(r_dict_1,r_dict_2,restrict_dict,args.maxima,args.wiggle)
     
     #Write out
-    name = '_'.join(sorted([x.replace('.rtsc','') for x in [args.react1,args.react2]])+['maxima',str(args.maxima),str(args.wiggle)])+'.csv'
+    name = '_'.join(sorted([x.replace('.react','') for x in [args.react1,args.react2]])+['maxima',str(args.maxima),str(args.wiggle)])+'.csv'
     dump_csv(fused,name)
 
 

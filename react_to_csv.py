@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''
 Extracts a single transcript from a <.react> and a <.fasta> file, reformats it into an easy to read <.csv>

@@ -64,7 +64,7 @@ def write_specificity_data(infod,outfyle='specificity.csv'):
             g.write(','.join(str(y) for x in data for y in x)+'\n')
 
 def main():
-    parser = argparse.ArgumentParser(description='Analyzes native/reagent nucleotide specificity')
+    parser = argparse.ArgumentParser(description='Analyzes native/reagent nucleotide stop specificity')
     parser.add_argument("-index",type=str,help="<.fasta> file used to generate the <.rtsc>")
     parser.add_argument('-rtsc',default = None, help='Operate on specific <.rtsc>', nargs='+')
     parser.add_argument('-name',default = None, help='Specify output file name')

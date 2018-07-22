@@ -15,20 +15,20 @@ import argparse
 #Functions
 def glean_ct_tops(directory):
     '''Grabs the top line of every file in the <.ct> directory, returns dictionary'''
-    info = {}
+    home,info = os.getcwd(),{}
     os.chdir(directory)
     procced_info = subprocess.Popen('head -1 *.ct', shell=True, stdin=subprocess.PIPE, 
-                                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True).stdout.read()
+                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True).stdout.read()
     read_data = [line for line in procced_info.split('\n') if line != '']
     for i in range(0,len(read_data),2):
         pair = read_data[i:i+2]
-        key = pair[0].strip().split()[1].split('_')[0]#Possible trouble here if gene names contain underscores
+        key = '_'.join(pair[0].strip().split()[1].split('_')[:-2])
         try:
             value = re.findall("-\d+\.\d+", pair[1])[0]
         except IndexError:
             value = 0
         info[key] = value
-    os.chdir('..')
+    os.chdir(home)
     return info
 
 def write_csv(adict,outfyle):
@@ -42,10 +42,10 @@ def write_csv(adict,outfyle):
 def main():
     parser = argparse.ArgumentParser(description='Takes a CT directory of a batch fold, writes a <.csv> of transcript MFEs.')
     parser.add_argument('directory',default = None, help = 'Operate on this directory')
-    parser.add_argument('-name',default = 'MFE.csv', help = 'Output file name, default = MFE.csv')
+    parser.add_argument('-name',default = 'MFE.csv', help = '[default = MFE.csv] Output file name')
     args = parser.parse_args()
     #
-    MFEdict=glean_ct_tops(args.directory)
+    MFEdict = glean_ct_tops(args.directory)
     write_csv(MFEdict,args.name)
 
 

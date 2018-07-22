@@ -76,6 +76,19 @@ def get_sum(alist):
     '''returns the sum of a list, removing NAs'''
     return sum([x for x in alist if x != 'NA'])
 
+def gini(list_of_values):
+    '''Returns the Gini value of a list of values.'''
+    try:
+        sorted_list = sorted(list_of_values)
+        height, area = 0, 0
+        for value in sorted_list:
+            height += value
+            area += height - value / 2.
+        fair_area = height * len(list_of_values) / 2.
+        return (fair_area - area) / fair_area
+    except ZeroDivisionError:
+        return 'NA'
+
 def hot_stepper(fasta_seqs,control_reacts,experimental_reacts,window=50,step=20):
     '''Makes lists of reactivity windows'''
     disaster_area = []
@@ -91,7 +104,9 @@ def hot_stepper(fasta_seqs,control_reacts,experimental_reacts,window=50,step=20)
             exp_windows = [experimental[i:i+window] for i in xrange(0, len(v)-(window-1), step)]
             if len(value_windows) > 1:
                 for j in range(0, len(value_windows)):
-                    tidbit = tuple([get_sum(value_windows[j]),get_sum(abs_value_windows[j]) ,seq_windows[j],k,str(j),control_windows[j],exp_windows[j]])
+                    sub_control,sub_exp = gini([z for z in control_windows[j] if z != 'NA']),gini([q for q in exp_windows[j] if q != 'NA'])
+                    delta_gini = sub_exp - sub_control if all([ga != 'NA' for ga in [sub_control,sub_exp]]) else 'NA'
+                    tidbit = tuple([get_sum(value_windows[j]),get_sum(abs_value_windows[j]),delta_gini,seq_windows[j],k,str(j),control_windows[j],exp_windows[j]])
                     disaster_area.append(tidbit)
         except KeyError:
             continue
@@ -100,9 +115,9 @@ def hot_stepper(fasta_seqs,control_reacts,experimental_reacts,window=50,step=20)
 def ultra_dumper(catastrophe,out='bits.csv'):
     '''Writes out a simple <.csv> file'''
     with open(out,'w') as g:
-        g.write('net_change,total_change,seq,transcript,step\n')
+        g.write('net_change,total_change,gini_change,seq,transcript,step\n')
         for item in catastrophe:
-            g.write(','.join([str(x) for x in item[0:5]])+'\n')
+            g.write(','.join([str(x) for x in item[0:6]])+'\n')
 
 def write_out_fasta(info,outfyle='out.fasta',LW=80):
     '''Writes out the <.fasta> file, names are just transcript+step'''
@@ -168,18 +183,16 @@ def main():
     parser.add_argument('control',type=str,help='control <.react> file')
     parser.add_argument('experimental',type=str,help='experimental <.react> file')
     parser.add_argument('fasta',type=str,help='<.fasta> to pull sequences from')
-    parser.add_argument('-wlen',type=int, default=50, help='[default = 50] Window Length')
-    parser.add_argument('-wstep',type=int, default=20, help='[default = 20] Window Step')
+    parser.add_argument('-wlen',type=int, default=50, help='[default = 50] Window Length (bp)')
+    parser.add_argument('-wstep',type=int, default=20, help='[default = 20] Window Step (bp)')
     parser.add_argument('-outname',type=str,default=None, help='Change the name of the outfile, overrides default')
     parser.add_argument('-restrict',default = None, help = '<.txt > Limit analysis to these specific transcripts')
-    parser.add_argument('-sort_loss',action='store_true',default=False,help = 'Sort windows by reactivity loss')
-    parser.add_argument('-sort_gain',action='store_true',default=False,help = 'Sort windows by reactivity gain')
-    parser.add_argument('-sort_delta',action='store_true',default=False,help = 'Sort windows by reactivity change')
+    parser.add_argument('-sort',type=str.upper, default = None,choices = ['L','G','D'],help = 'Sort windows by Loss/Gain/Delta')
     parser.add_argument('-perc',type=int, default=100, help='[default = 100] Percentage of sorted windows to retain')
-    parser.add_argument('-singular',action='store_true',default=False,help = 'Limit to first window for each transcript after sorting')
-    parser.add_argument('-strict',action='store_true',default=False,help = 'Sorts remove non gain/loss/delta before perc truncation')
-    parser.add_argument('-fastaout',action='store_true',default=False,help = 'Write windows in <.fasta> format as well')
-    parser.add_argument('-reactout',action='store_true',default=False,help = 'Write accompanying <.react> files as well')
+    parser.add_argument('-singular',action='store_true',default=False,help = 'Limit to top window per transcript after sorting')
+    parser.add_argument('-strict',action='store_true',default=False,help = '-sort removes non gain/loss/delta before perc filtering')
+    parser.add_argument('-fastaout',action='store_true',default=False,help = 'Write out windows in <.fasta> format as well')
+    parser.add_argument('-reactout',action='store_true',default=False,help = 'Write out windows in <.react> format as well')
     args = parser.parse_args()
     
     #Generate Outfile name
@@ -198,24 +211,24 @@ def main():
     #Generate Windows
     loud_noises = hot_stepper(target_seqs,control_reactivty,experimental_reactivty,args.wlen,args.wstep)
 
-    #Apply filter - they could give multiple, it will work, but it won't really make all that much sense
-    if args.sort_loss == True:
+    #Apply filter
+    if args.sort == 'L':
         loud_noises = loud_noises if args.strict == False else [item for item in loud_noises if item[0] < 0]
         loud_noises = sorted(loud_noises,reverse=False)[0:int((float(args.perc)/100)*len(loud_noises))]
         out_name = out_name.replace('.csv','_'+str(args.perc)+'loss.csv')
 
-    if args.sort_gain == True:
+    if args.sort == 'G':
         loud_noises = loud_noises if args.strict == False else [item for item in loud_noises if item[0] > 0]
         loud_noises = sorted(loud_noises,reverse=True)[0:int((float(args.perc)/100)*len(loud_noises))]
         out_name = out_name.replace('.csv','_'+str(args.perc)+'gain.csv')
     
-    if args.sort_delta == True:
+    if args.sort == 'D':
         loud_noises = loud_noises if args.strict == False else [item for item in loud_noises if item[0] != 0]
         loud_noises = sorted(loud_noises,reverse=True,key=lambda x:x[1])[0:int((float(args.perc)/100)*len(loud_noises))]
         out_name = out_name.replace('.csv','_'+str(args.perc)+'delta.csv')
     
     #Singular filter if applicable
-    if any([args.sort_delta,args.sort_loss,args.sort_gain]) and args.singular:
+    if args.sort and args.singular:
         loud_noises = make_list_strict(loud_noises)
 
     #Output Suite

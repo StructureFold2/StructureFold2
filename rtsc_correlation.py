@@ -44,7 +44,7 @@ def generate_repeatabilty_dictionary(rtsc_fyles):
         for transcript, values in sub_data.items():
             all_data.setdefault(transcript, {})[rtsc_fyle.replace('.rtsc','')] = values
     return all_data
-            
+
 def write_out_repeatability(stops,in_files,outfile='OUT.csv'):
     '''Writes out a nested RTSC dictionary'''
     with open(outfile,'w') as g:

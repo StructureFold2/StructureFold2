@@ -44,12 +44,12 @@ def main():
     parser = argparse.ArgumentParser(description='Runs Bowtie2 on every <.fastq> in the current directory using the recommended settings for a Structure-seq analysis.')
     parser.add_argument("index",type=str,help="Path to index to map against")
     parser.add_argument('-phred64',action="store_true",default=False,help = 'Use phred64 quality scores instead of phred33')
-    parser.add_argument('-nomulti',action="store_false",default=True,help = 'Do not accept all mappings (bowtie option -a off)')
+    parser.add_argument('-nomulti',action="store_false",default=True,help = 'Do not accept multimaps (bowtie option -a off)')
     parser.add_argument('-nofails',action="store_false",default=True,help = 'Do not log failed mappings (bowtie option --no-unal on)')
     parser.add_argument('-log',action="store_true",default=False,help = 'Create an explicit log of the mappings')
-    parser.add_argument('-threads',type=int,default=4, help='<int> [default = 4] Number of threads to use')
-    parser.add_argument('-logname',type=str,default='batch_log.csv', help='<str> [default = batch_log.csv] name of the log file')
-    parser.add_argument('-suffix',type=str,default='mapped', help='<str> [default = mapped] SAM file suffix')
+    parser.add_argument('-threads',type=int,default=4, help='[default = 4] Number of threads to use')
+    parser.add_argument('-logname',type=str,default='batch_log.csv', help='[default = batch_log.csv] name of the log file')
+    parser.add_argument('-suffix',type=str,default='mapped', help='[default = mapped] SAM file suffix')
     args = parser.parse_args()
     #
     if args.log == False:

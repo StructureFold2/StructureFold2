@@ -31,7 +31,7 @@ def check_py_list_modules(alist):
 
 def check_dependencies(prog_dictionary):
     '''runs program_status on each element in the list'''
-    print '\033[0;1mTesting for Program dependencies...\033[0m'
+    print '\033[0;1mTesting for program dependencies...\033[0m'
     for program, error_message in prog_dictionary.items():
         print test(program,error_message)
     print ''
@@ -48,6 +48,22 @@ def test(program,message):
             return '{} is located at {}'.format(program,exe_file)
     return 'Cannot find a valid install of {}, see {} or check permissions'.format(program,message)
 
+def check_optional(options_dictionary):
+    '''runs program_status on each element in the list'''
+    print '\033[0;1mTesting for optional programs...\033[0m'
+    for program, error_message in options_dictionary.items():
+        print test_option(program,error_message)
+    print ''
+
+def test_option(program,message):
+    '''tests for the programs in the path'''
+    for path in os.environ["PATH"].split(os.pathsep):
+        exe_file = os.path.join(path, program)
+        if is_exe(exe_file):
+            return '{} is located at {}'.format(program,exe_file)
+    return 'Cannot find a valid install of {}, see {} or check permissions'.format(program,message)
+
+
 def main():
     check_basic()
     modules = ['numpy','Bio']
@@ -56,6 +72,8 @@ def main():
                 'cutadapt':'http://cutadapt.readthedocs.io/en/stable/guide.html',
                 'samtools':'http://samtools.sourceforge.net/'}
     check_dependencies(programs)
+    options = {'Fold':'https://rna.urmc.rochester.edu/RNAstructure.html'}
+    check_optional(options)
 
 if __name__ == '__main__':
     main()

@@ -28,16 +28,19 @@ def read_coverage(coverage_file):
             
 def write_flat_list(master_dictionary,xthreshold=1):
     '''Writes a flat list, file is to be used by other scripts'''
-    xoverlap = 0
+    xoverlap,missingno = 0,0
     outname ='_'.join([group.replace('_coverage','') for group in sorted(master_dictionary.keys())]+['overlap',str(xthreshold)])+'.txt'
     common_keys = set([a for b in [sub.keys() for sub in master_dictionary.values()] for a in b])
     with open(outname,'w') as g:
         for key in common_keys:
-            test_list = [(file_key,master_dictionary[file_key][key]) for file_key in sorted(master_dictionary.keys())]
-            evaluated_test = [info[1]>=xthreshold for info in test_list]
-            if all(evaluated_test):
-                g.write(key+'\n')
-                xoverlap+=1
+            try:
+                test_list = [(file_key,master_dictionary[file_key][key]) for file_key in sorted(master_dictionary.keys())]
+                evaluated_test = [info[1]>=xthreshold for info in test_list]
+                if all(evaluated_test):
+                    g.write(key+'\n')
+                    xoverlap+=1
+            except KeyError:
+                missingno +=1
     #Some sort of out metric
     print ''
     for filename,subdict in master_dictionary.items():
@@ -47,7 +50,7 @@ def write_flat_list(master_dictionary,xthreshold=1):
 
 def main():
     parser = argparse.ArgumentParser(description='Creates lists of transcripts with coverage overlaps above a certain threshold.')
-    parser.add_argument('-n',type=int, default=1, help='[default = 1] coverage threshold to use',dest='threshold')
+    parser.add_argument('-n',type=float, default=1.0, help='[default = 1.0] coverage threshold to use',dest='threshold')
     parser.add_argument('-f', default = None, help='Specific <.csv>s to use', nargs='+',dest='csvs')
     parser.add_argument('-batchdir',action="store_true",default=False,help = 'Use all coverage <.csv> in the directory')
     args = parser.parse_args()

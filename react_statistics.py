@@ -101,13 +101,18 @@ def write_out_file(outfyle,react_fyles,stats_dictionary):
             fyle_lyne = ','.join([k]+[str(x) for x in v])
             g.write(fyle_lyne+'\n')
 
+def check_extension(astring,extension):
+    '''Checks and fixes things to have the proper extension'''
+    out_string = astring if astring.endswith(extension) else astring + extension
+    return out_string
+
 def main():
     parser = argparse.ArgumentParser(description='Generates a simple statistical report for all <.react> files in the directory.')
     parser.add_argument('-react',default = None, help='Operate on specific <.react> files', nargs='+')
     parser.add_argument('-restrict',default=None, help='Filter to these transcripts via coverage file')
     parser.add_argument('-name',default=None, help='Specify output file name')
-    parser.add_argument('-n',type=int, default=20, help='<int> [default = 20] ignore n last bp of reactivity',dest='trim')
-    parser.add_argument('-m',type=int, default=10, help='<int> [default = 10] minimum length of transcript',dest='minlen')
+    parser.add_argument('-n',type=int, default=20, help='[default = 20] ignore n last bp of reactivity',dest='trim')
+    parser.add_argument('-m',type=int, default=10, help='[default = 10] minimum effective length of transcript',dest='minlen')
     args = parser.parse_args()
     
     #Read in all queried <.react> files
@@ -123,7 +128,7 @@ def main():
     name_bits = sorted([x.replace('.react','') for x in target_files])
     ignored,minbases,suffix = [str(args.trim)+'trim'],[str(args.minlen)+'minlen'],['statistics.csv']
     default_name = '_'.join(name_bits+ignored+minbases+suffix)
-    out_name = default_name if args.name == None else args.name
+    out_name = default_name if args.name == None else check_extension(args.name,'.csv')
     
     #Generate Statistics, write out.
     out_data = generate_statistics(data,target_files,args.trim,args.minlen)
