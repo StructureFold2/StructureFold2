@@ -1,18 +1,25 @@
 #!/usr/bin/env python
 
 '''
-Script takes two <.react> files and a <.fasta> file and a static nucleotide motif.
-Lists all occurances of that motif along with surrounding 5' and 3' nucleotides, along with the reactivity values in both 
-<.reacts> as well as the difference and other statistics.
+Takes two <.react> files and a <.fasta> file and a static nucleotide motif, or a list of motifs.
+These motifs must obey the standard nucleic acid alphabet; A,G,C,T and R,Y,W,S,M,K,B,H,D,V,N
+Lists all occurances of that motif along with surrounding 5' and 3' nucleotides, along with the 
+reactivity values in both <.reacts> as well as the difference and other statistics.
+Optionally re-outputs these as <.fasta> and <.react> to do more analyses.
+
+It is currrently not possible to output all to one giant <.csv>/etc. due to the possibility that
+a user may have a list containing motifs of several varying lengths. This may be an option in a new 
+version.
 '''
 
 #Imports
-from itertools import islice
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.Alphabet import IUPAC
+import itertools
 import argparse
 import re
+import os
 
 #Functions
 def read_fasta(genome_fasta):
@@ -26,7 +33,7 @@ def read_reactivities(afile):
     information = {}
     with open(afile,'r') as f:
         while True:
-            next_n_lines = list(islice(f, 2))
+            next_n_lines = list(itertools.islice(f, 2))
             if not next_n_lines:
                 break
             transcript,reactivities = [n.strip() for n in next_n_lines]
@@ -155,7 +162,7 @@ def write_out_fasta_s_motif(info,outfyle='out.fasta',LW=80):
                 g.write(seq[i:i+LW] + '\n') 
 
 def write_react_fork(info,control_out,experimental_out):
-    ''''''
+    '''Writes two <.react>s'''
     with open(control_out,'w') as g, open(experimental_out,'w') as h:
         for name, data, in info.items():
             seq_name = '_'.join(name)
@@ -166,24 +173,58 @@ def write_react_fork(info,control_out,experimental_out):
             g.write('\t'.join([str(q) for q in control_data])+'\n')
             h.write('\t'.join([str(z) for z in exp_data])+'\n')
 
+def permute_DNA(dna_string):
+    '''Returns all permuations of DNA oligo wildcards'''
+    sequence = dna_string.upper()
+    normal = ['A','G','C','T']
+    subs = dict((('R',['A','G']),('Y',['C','T']),('W',['A','T']),
+                ('S',['G','C']),('M',['A','C']),('K',['G','T']),
+                ('B',['G','C','T']),('H',['A','C','T']),
+                ('D',['A','G','T']),('V',['A','G','C']),
+                ('N',['A','C','G','T'])))
+    wildcards = [base for base in list(sequence) if base not in normal]
+    seq_skeleton = [base_pair if base_pair in normal else '-' for base_pair in list(sequence)]
+    if wildcards == []:
+        return [sequence]
+    else:
+        try:
+            permuations = []
+            chaos_list = [subs[x] for x in wildcards]
+            for entropy in itertools.product(*chaos_list):
+                entropy_generator = (tz for tz in entropy)
+                seq_filled = [bp if bp != '-' else entropy_generator.next() for bp in seq_skeleton]
+                permuations.append(''.join(seq_filled))
+            return permuations
+        except KeyError:
+            return []
+
+def generate_searchable_motifs(user_input):
+    '''Reads either a file or a motif, returns list of motifs to search for'''
+    if os.access(user_input,os.R_OK):
+        with open(user_input,'r') as f:
+            basic_motifs = [line.strip() for line in f]
+            ex_motifs = [item for sublist in [permute_DNA(motif) for motif in basic_motifs] for item in sublist]
+            return ex_motifs
+    else:
+        return permute_DNA(user_input)
+
+
 #Main Function
 def main():
-    parser = argparse.ArgumentParser(description='Searches and returns reactivity vectors for a targeted motif')
+    parser = argparse.ArgumentParser(description='Searches and returns reactivity vectors for target motifs')
     parser.add_argument('control',type=str,help='control <.react> file')
     parser.add_argument('experimental',type=str,help='experimental <.react> file')
     parser.add_argument('fasta',type=str,help='<.fasta> to pull sequences from')
-    parser.add_argument('motif',type=str,help='nucleotide motif')
+    parser.add_argument('in_data',type=str,help='Input file or motif')
     parser.add_argument('-fp',default=5,type=int, help='[default = 5] Bases to include 5\' of the motif')
     parser.add_argument('-tp',default=5,type=int, help='[default = 5] Bases to include 3\' of the motif')
-    parser.add_argument('-outname',type=str,default=None, help='Change the name of the outfile, overrides default')
     parser.add_argument('-restrict',default = None, help = '<.txt > Limit analysis to these specific transcripts')
-    parser.add_argument('-fastaout',action="store_true",default=False,help = 'Write windows to <.fasta> format as well')
-    parser.add_argument('-reactout',action="store_true",default=False,help = 'Write accompanying <.react> files as well')
+    parser.add_argument('-fastaout',action='store_true',default=False,help='Write windows to <.fasta> format as well')
+    parser.add_argument('-reactout',action='store_true',default=False,help='Write accompanying <.react> files as well')
     args = parser.parse_args()
     
-    #Generate Name
-    default_name = '_'.join([args.control.replace('.react',''),args.experimental.replace('.react',''),args.motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.csv'
-    out_name = default_name if args.outname == None else check_extension(args.outname,'.csv')
+    #Generate all motifs that need to be processed
+    searches = generate_searchable_motifs(args.in_data)
     
     #Read in both groups of reactivities, fasta file with sequences
     control_reactivty,experimental_reactivty = read_reactivities(args.control),read_reactivities(args.experimental)
@@ -192,25 +233,29 @@ def main():
     #Truncate seqs to those with good coverage in both conditions if user provides a list
     if args.restrict != None:
         covered = get_covered_transcripts(args.restrict)
-        filter_dictonary(target_seqs,covered)
-
-    #Pop windows
-    quiet_noises = cold_stepper(target_seqs,control_reactivty,experimental_reactivty,args.motif,args.fp,args.tp)
-
-    #Output Suite
-    #Output for <.csv>
-    dump_csv(quiet_noises,out_name,args.motif,args.fp,args.tp)
-
-    #Output for <.fasta>
-    if args.fastaout == True:
-        write_out_fasta_s_motif(quiet_noises,out_name.replace('.csv','.fasta'))
+        filter_dictonary(target_seqs,covered)   
     
-    #Output for <.react>
-    if args.reactout == True:
-        new_control_file = '_'.join([args.control.replace('.react',''),args.motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
-        new_exp_file = '_'.join([args.experimental.replace('.react',''),args.motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
-        write_react_fork(quiet_noises,new_control_file,new_exp_file)
-
+    #Find and write output for each motif
+    for search in sorted(searches):
+        
+        #Generate name for each out file
+        out_name = '_'.join([args.control.replace('.react',''),args.experimental.replace('.react',''),search,str(args.fp)+'fp',str(args.tp)+'tp'])+'.csv'
+        
+        #Generate Windows
+        quiet_noises = cold_stepper(target_seqs,control_reactivty,experimental_reactivty,search,args.fp,args.tp)
+        
+        #Output for <.csv>
+        dump_csv(quiet_noises,out_name,search,args.fp,args.tp)
+        
+        #Output for <.fasta>
+        if args.fastaout == True:
+            write_out_fasta_s_motif(quiet_noises,out_name.replace('.csv','.fasta'))
+        
+        #Output for <.react>
+        if args.reactout == True:
+            new_control_file = '_'.join([args.control.replace('.react',''),search,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
+            new_exp_file = '_'.join([args.experimental.replace('.react',''),search,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
+            write_react_fork(quiet_noises,new_control_file,new_exp_file)
 
 if __name__ == '__main__': 
     main()
