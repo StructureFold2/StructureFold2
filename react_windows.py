@@ -123,8 +123,8 @@ def write_out_fasta(info,outfyle='out.fasta',LW=80):
     '''Writes out the <.fasta> file, names are just transcript+step'''
     with open(outfyle,'w') as g:
         for item in info:
-            name = '_'.join([item[3],item[4]])
-            seq = item[2]
+            name = '_'.join([item[4],item[5]])
+            seq = item[3]
             g.write('>' + name + '\n')
             for i in xrange(0,len(seq),LW):
                 g.write(seq[i:i+LW] + '\n') 
