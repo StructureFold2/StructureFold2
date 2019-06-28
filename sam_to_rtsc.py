@@ -18,19 +18,9 @@ from collections import Counter
 
 #Functions
 def read_in_fasta(afasta):
-    '''Reads in a fasta file to a dictionary'''
-    fasta_dict = {}
-    fasta_sequences,fasta_dict = SeqIO.parse(open(afasta),'fasta'),{}
-    for fasta in fasta_sequences:
-        fasta_dict[fasta.id] = str(fasta.seq)
-    return fasta_dict
-
-def fastadict_to_transcript_limits(fastadictionary):
-    '''Returns the length of each transcript'''
-    lengths = {}
-    for k, v in fastadictionary.items():
-        lengths[k] = len(v)
-    return lengths
+    '''Fasta to Python dictionary'''
+    fasta_sequences = SeqIO.parse(open(afasta),'fasta')
+    return dict([(record.id, str(record.seq)) for record in fasta_sequences])
 
 def sam_to_rtsc_dict(samfyle):
     '''Reads in the RT stops from a <.sam> file, returns a dictionary with nested Counter objects logging the stops.'''
@@ -55,16 +45,15 @@ def write_rtsc(stop_counts,transcript_limits,outfyle='stops.rtsc'):
 
 def main():
     parser = argparse.ArgumentParser(description='Creates <.rtsc> file(s) from filtered <.sam> file(s) and a <.fasta> file')
-    parser.add_argument("index",type=str,help="<.fasta> file containing the transcripts mapped against")
-    parser.add_argument('-single',default = None, help = 'Operate on this single file, rather than the directory')
-    parser.add_argument('-suffix',default = None, help = 'Operate only on <.sam> with this suffix before the extension')
-    parser.add_argument('-trim',default=None, help = 'Remove this suffix from output file name before writing')
+    parser.add_argument('index',type=str,help='<.fasta> file containing the transcripts mapped against')
+    parser.add_argument('-single',default=None,help='Operate on this single file, rather than the directory')
+    parser.add_argument('-suffix',default=None,help='Operate only on <.sam> with this suffix before the extension')
+    parser.add_argument('-trim',default=None,help='Remove this suffix from output file name before writing')
     args = parser.parse_args()
     
     #Generate transcript lengths
-    sequences = read_in_fasta(args.index)
-    fasta_limits = fastadict_to_transcript_limits(sequences)
-    
+    fasta_limits = dict([(name,len(seq)) for name,seq in read_in_fasta(args.index).items()])
+
     #Batch mode
     if args.single == None:
         sam_files = glob.glob('*.sam') if args.suffix == None else glob.glob(''.join(['*',args.suffix,'.sam']))
@@ -78,7 +67,7 @@ def main():
         stops = sam_to_rtsc_dict(args.single)
         outfyle = args.single.replace('.sam','.rtsc') if args.trim == None else args.single.replace(args.trim+'.sam','')+'.rtsc'
         write_rtsc(stops,fasta_limits,outfyle)
-        
+
 
 if __name__ == '__main__':
     main()
