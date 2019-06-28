@@ -69,14 +69,14 @@ def main():
     if args.single == None:
         sam_files = glob.glob('*.sam') if args.suffix == None else glob.glob(''.join(['*',args.suffix,'.sam']))
         for sam_file in sorted(sam_files):
-            stops = stops = sam_to_rtsc_dict(sam_file)
+            stops = sam_to_rtsc_dict(sam_file)
             outfyle = sam_file.replace('.sam','.rtsc') if args.trim == None else sam_file.replace(args.trim+'.sam','')+'.rtsc'
             write_rtsc(stops,fasta_limits,outfyle)
 
     #Single Mode
     else:
         stops = sam_to_rtsc_dict(args.single)
-        outfyle = sam_file.replace('.sam','.rtsc') if args.trim == None else sam_file.replace(args.trim+'.sam','')+'.rtsc'
+        outfyle = args.single.replace('.sam','.rtsc') if args.trim == None else args.single.replace(args.trim+'.sam','')+'.rtsc'
         write_rtsc(stops,fasta_limits,outfyle)
         
 
