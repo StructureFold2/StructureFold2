@@ -4,10 +4,8 @@
 Downscales <.rtsc> files, keeping a given percentage of the original RT hits.
 This downscaling cab be done statically, simply multiplying every RT count by a specified percentage
 This downscaling can be done pseudo-randomly, removing hits randomly down to a specified percentage.
-
-#ISSUE - because of the way we are randomly removing, bases with lots of stops aren't losing anything
-and bases with few are being wiped entirely. Should change to an implementation where at each base, count
-the hits and each hit on each base has X percent change of retention, not throwing X total craters at it.
+This downscaling can be done pseudo-randomly, continually checking a random bases and subtracting a 
+stop until enough have been removed.
 '''
 
 #Imports
@@ -75,9 +73,9 @@ def get_covered_transcripts(coverage_fyle):
     return info
 
 def main():
-    parser = argparse.ArgumentParser(description='Determines approximate transcript abundance based on <.rtsc> files.')
+    parser = argparse.ArgumentParser(description='Downscales <.rtsc> files.')
     parser.add_argument('-f',default=None, nargs='+', help = '<.rtsc> to operate on')
-    parser.add_argument('mode',type=str.upper, choices = ['PERCENT','RANDOMREAD','RANDOMPOSITION'])
+    parser.add_argument('mode',type=str.upper, choices = ['FRACTIONAL','RANDOMREAD','RANDOMPOSITION'])
     parser.add_argument('-ratio',type=float,default=.50, help='[default = 0.50] Fraction of RT stops to retain')
     parser.add_argument('-restrict',default = None, help = 'Limit analysis to these specific transcripts <.txt> ')
     parser.add_argument('-sort',action='store_true',default=False,help = 'Sort output by transcript name')
@@ -85,7 +83,7 @@ def main():
 
     #Files to operate on, dictionary of functions
     fyle_lyst = sorted(glob.glob('*.rtsc')) if args.f == None else sorted(args.f)
-    downscale_methods = {'PERCENT':keep_static_percentage,'RANDOMPOSITION':keep_random_downsample,'RANDOMREAD':random_per_stop}
+    downscale_methods = {'FRACTIONAL':keep_static_percentage,'RANDOMPOSITION':keep_random_downsample,'RANDOMREAD':random_per_stop}
 
     #Iterate through file(s) 
     for fyle in fyle_lyst:
