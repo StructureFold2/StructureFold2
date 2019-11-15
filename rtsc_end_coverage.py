@@ -37,7 +37,7 @@ def five_prime_coverage(rtsc_data,parameters):
     new_data = {}
     for name, stops in rtsc_data.items():
         try:
-            new_data[name] = sum(stops[:parameters['length']])/(average(stops)*len(stops))
+            new_data[name] = sum(stops[:parameters['length']])/(average(stops)*parameters['length'])
         except ZeroDivisionError:
             new_data[name] = 0.0
     extra_params = [str(parameters[q]) for q in ['length']]
