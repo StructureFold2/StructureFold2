@@ -16,7 +16,7 @@ def get_all_strandedness(CT_directory='CT'):
     all_data = {}
     for ct_fyle in glob.glob('*.ct'):
         with open(ct_fyle,'r') as f:
-             big_key = f.readline().strip().split()[1]
+             big_key = f.readline().strip().split()[-1]
              for line in f:
                  pos, base, neg, pos, pair, nat = line.strip().split()
                  all_data.setdefault(big_key, {})[pos] = False if pair == '0' else True
