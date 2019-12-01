@@ -243,13 +243,13 @@ def main():
     if args.reactout == True:
         new_control_file = '_'.join([args.control.replace('.react',''),str(args.wlen)+'win',str(args.wstep)+'step'])+'.react'
         new_exp_file = '_'.join([args.experimental.replace('.react',''),str(args.wlen)+'win',str(args.wstep)+'step'])+'.react'
-        if args.sort_loss == True:
+        if args.sort == 'L':
             new_control_file = new_control_file.replace('.react','_'+str(args.perc)+'loss.react')
             new_exp_file = new_exp_file.replace('.react','_'+str(args.perc)+'loss.react')
-        if args.sort_gain == True:
+        if args.sort == 'G':
             new_control_file = new_control_file.replace('.react','_'+str(args.perc)+'gain.react')
             new_exp_file = new_exp_file.replace('.react','_'+str(args.perc)+'gain.react')
-        if args.sort_delta == True:
+        if args.sort == 'D':
             new_control_file = new_control_file.replace('.react','_'+str(args.perc)+'delta.react')
             new_exp_file = new_exp_file.replace('.react','_'+str(args.perc)+'delta.react')
         write_react_fork(loud_noises,new_control_file,new_exp_file)
