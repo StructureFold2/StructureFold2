@@ -169,9 +169,9 @@ def write_react_fork(info,control_out,experimental_out):
     '''Writes two new reacts'''
     with open(control_out,'w') as g, open(experimental_out,'w') as h:
         for data in info:
-            seq_name = '_'.join([data[3],data[4]])
-            control_data = data[5]
-            exp_data = data[6]
+            seq_name = '_'.join([data[4],data[5]])
+            control_data = data[6]
+            exp_data = data[7]
             g.write(seq_name+'\n')
             h.write(seq_name+'\n')
             g.write('\t'.join([str(q) for q in control_data])+'\n')
