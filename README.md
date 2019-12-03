@@ -15,9 +15,8 @@ Please review the included manual, SF2_Manual.pdf, for information on using Stru
 + [RNAStructure](https://rna.urmc.rochester.edu/RNAstructure.html)
 + [R](https://www.r-project.org/)
 
-## Updates and Errata
+## Planned Updates
 
-**Planned Updates**
 * <.ct> files generated under MFE settings with RNAStructure now contain a DeltaG value, thus...
     * make_standed_csv.py and make_MFE_csv.py will be merged into one module.
     * make_PPV_csv.py will also be rolled into this module; structure_statistics.py.
