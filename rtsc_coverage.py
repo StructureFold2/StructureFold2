@@ -44,27 +44,17 @@ def coverage_dictionary_generic(sequence_dictionary,rtstop_dictionary,specificit
             coverage_dict[transcript] = 0
     return coverage_dict
 
-def batch_coverage_dictionary(fasta_fyle,batch_specificity):
+def batch_coverage_dictionary(fasta_fyle,batch_specificity,rtsc_fyles):
     '''generates a dictionary for each file'''
     grande_dictionary = {}
     sequence_dictionary = read_in_fasta(fasta_fyle)
-    for rtsc_fyle in sorted(glob.glob('*.rtsc')):
+    for rtsc_fyle in rtsc_fyles:
         rtsc_dict = read_in_rtsc(rtsc_fyle)
         grande_dictionary[rtsc_fyle.replace('.rtsc','')] = coverage_dictionary_generic(sequence_dictionary,rtsc_dict,batch_specificity)
     return grande_dictionary
 
-def write_single_coverage(coverage_dict,infyle):
-    '''Writes out in csv format'''
-    outfile = infyle.replace('.rtsc','')+'_coverage.csv'
-    header = ','.join(['transcript',infyle.replace('.rtsc','')+'_coverage'])
-    with open(outfile,'w') as g:
-        g.write(header+'\n')
-        for transcript, value in sorted(coverage_dict.items(), key=lambda x: x[1],reverse=True):
-            g.write(','.join([transcript,str(value)])+'\n')
-
-def write_batch_coverage(batch_coverage_dictionary):
+def write_batch_coverage(batch_coverage_dictionary,outfile):
     '''Write out all the information based on alphabetical order'''
-    outfile = '_'.join(sorted(batch_coverage_dictionary.keys()))+'_coverage.csv'
     header = ','.join(['transcript']+[name+'_coverage' for name in sorted(batch_coverage_dictionary.keys())])
     all_keys = [z.keys() for z in batch_coverage_dictionary.values()]
     key_set = set([j for i in all_keys for j in i])
@@ -74,21 +64,32 @@ def write_batch_coverage(batch_coverage_dictionary):
             outline = [str(batch_coverage_dictionary[name][transcript]) if transcript in batch_coverage_dictionary[name] else 'NA' for name in sorted(batch_coverage_dictionary.keys())]
             g.write(','.join([transcript]+outline)+'\n')
 
+def check_extension(astring,extension):
+    '''Checks and fixes things to have the proper extension'''
+    out_string = astring if astring.endswith(extension) else astring + extension
+    return out_string
+
 def main():
-    parser = argparse.ArgumentParser(description='Creates <.csv> of stop coverages from <.rtsc> files in the directory')
+    parser = argparse.ArgumentParser(description='Creates <.csv> of stop coverages from <.rtsc> files')
     parser.add_argument("index",type=str,help="<.fasta> file used to generate the <.rtsc>")
-    parser.add_argument('-single',default = None, help = 'Operate on this single file, rather than the directory')
+    parser.add_argument('-rtsc',help='Input <.rtsc> files', nargs='+')
+    parser.add_argument('-batch',action='store_true',default=False, help = 'Operate on all <.rtsc> files in the directory')
     parser.add_argument('-bases',type=str,default='AC', help='[default = AC] Coverage Specificity')
+    parser.add_argument('-name',default=None, help='Specify output file name')
     args = parser.parse_args()
-    if args.single != None:
-        input_fasta = read_in_fasta(args.index)
-        input_rtsc = read_in_rtsc(args.single)
-        single_data = coverage_dictionary_generic(input_fasta,input_rtsc,args.bases)
-        write_single_coverage(single_data,args.single)
+    
+    if args.batch != False:
+        rtsc_fyles = sorted(glob.glob('*.rtsc'))
+        default_name = '_'.join(sorted([x.replace('.rtsc','') for x in rtsc_fyles]))+'_coverage.csv'
+        out_name = default_name if args.name == None else check_extension(args.name,'.csv')
+        batch_coverage = batch_coverage_dictionary(args.index,args.bases,rtsc_fyles)
+        write_batch_coverage(batch_coverage,out_name)
+    
     else:
-        batch_coverage = batch_coverage_dictionary(args.index,args.bases)
-        write_batch_coverage(batch_coverage)
-        
+        default_name = '_'.join(sorted([x.replace('.rtsc','') for x in args.rtsc]))+'_coverage.csv'
+        out_name = default_name if args.name == None else check_extension(args.name,'.csv')
+        batch_coverage = batch_coverage_dictionary(args.index,args.bases,args.rtsc)
+        write_batch_coverage(batch_coverage,out_name)
 
 if __name__ == '__main__':
     main()
