@@ -22,9 +22,9 @@ Please review the included manual, SF2_Manual.pdf, for information on using Stru
     * make_standed_csv.py and make_MFE_csv.py will be merged into one module.
     * make_PPV_csv.py will also be rolled into this module; structure_statistics.py.
     * Should be able to report/consolidate any number of directories of <.ct> files ito a single file.
-    * This will fully deprecate all three of those scripts.
+    * This will fully deprecate all three of those scripts.<br><br>
 * Several users have requested features that are exclusive to <.react> files to be available for <.rtsc>,
 or vice-versa. I.E, rather than making a separate module for react_correlation to complement rtsc_correlation,
-both features, modules that work on both will be prefixed with 'rx'. So react_correlation and rtsc_correlation
+both features will be included in a single module, modules that work on both will be prefixed with 'rx'. So react_correlation and rtsc_correlation
 would become rx_correlation
 
