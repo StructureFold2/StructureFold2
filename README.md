@@ -1,4 +1,4 @@
-# StructureFold2 <img src='assets/sf2_logo.png' align='right' height='150px' />
+# StructureFold2 <img src='assets/sf2_logo.png' align='right' />
 
 Please review the included manual, SF2_Manual.pdf, for information on using StructureFold2.
 
