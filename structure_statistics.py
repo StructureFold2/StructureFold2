@@ -52,7 +52,7 @@ def write_out_raw(raw_data,out_fyle='derp.csv'):
 def main():
     parser = argparse.ArgumentParser(description='Summarizes or compares MFE <.ct> files')
     parser.add_argument('-d',type=str,help='CT directories', nargs='+')
-    parser.add_argument('-mode',type=str.upper,default= None,choices = ['R','F','C'],help='Raw/Fused statistics or Comparative Analysis')
+    parser.add_argument('-mode',type=str.upper,default= None,choices = ['R','F'],help='Raw/Fused statistics')
     parser.add_argument('-name',type=str,default = None, help = 'Output file name')
     parser.add_argument('-offset',type=int,default = 0, help = 'Number of Underscores in Transcript Names')
     args = parser.parse_args()
@@ -71,9 +71,6 @@ def main():
         default_name = '_'.join(sorted(data.keys())+['statisics'])+'.csv'
         out_name = default_name if args.name == None else check_extension(args.outname,'.csv')
         write_out_fused(data,out_name)
-    
-    if args.mode == 'C':
-        print 'Mode Not Yet Implemented, Call Again'
 
 if __name__ == '__main__':
     main()
