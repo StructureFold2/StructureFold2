@@ -21,7 +21,7 @@ def fuse_connectivity_dirs(list_of_directories,offset):
         raw_dict = collect_connectivity_tables(directory)
         #We want to collapse entries around transcript between directories
         #Some transcript nomenclatures have underscores in them, thus an offset can work around it
-        melted_dict = dict([('_'.join(k.split('_')[:1+offset]),v) for k, v in raw_dict.items()])  
+        melted_dict = {'_'.join(k.split('_')[:1+offset]):v for k, v in raw_dict.items()}
         mass_data[directory.strip(os.sep).split(os.sep)[-1]] = melted_dict
     return mass_data
 
