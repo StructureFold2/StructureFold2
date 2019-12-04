@@ -20,11 +20,11 @@ def report_lig(infyle,outfyle):
             total_counter = Counter(seq)
             total_counts = total_counts + total_counter
             first_base_counts[seq[0]]+=1
-        g.write(','.join(['nt','count','position','\n']))
+        g.write(','.join(['nt','count','position'])+'\n')
         for k,v in first_base_counts.items():
-            g.write(','.join([comp_dict[k],str(v),'position_1','\n']))
+            g.write(','.join([comp_dict[k],str(v),'position_1'])+'\n')
         for k,v in total_counts.items():
-            g.write(','.join([k,str(v),'total_counts','\n']))
+            g.write(','.join([k,str(v),'total_counts'])+'\n')
 
 def main():
     parser = argparse.ArgumentParser(description='Creates <.csv> of total nt counts and the complement nt counts at position 1 from all reads in <.fastq> files in the directory')
