@@ -63,13 +63,13 @@ def main():
             print('Raw mode can only process a single directory, processing {}'.format(directory))
         data = collect_connectivity_tables(directory)
         default_name = '_'.join([directory,'statisics'])+'.csv'
-        out_name = default_name if args.name == None else check_extension(args.outname,'.csv')
+        out_name = default_name if args.name == None else check_extension(args.name,'.csv')
         write_out_raw(data,out_name)
     
     if args.mode =='F':
         data = fuse_connectivity_dirs(args.d,args.offset)
         default_name = '_'.join(sorted(data.keys())+['statisics'])+'.csv'
-        out_name = default_name if args.name == None else check_extension(args.outname,'.csv')
+        out_name = default_name if args.name == None else check_extension(args.name,'.csv')
         write_out_fused(data,out_name)
 
 if __name__ == '__main__':
