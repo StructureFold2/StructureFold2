@@ -54,7 +54,7 @@ def main():
     parser.add_argument('-d',type=str,help='CT directory/directories', nargs='+')
     parser.add_argument('-mode',type=str.upper,default= None,choices = ['R','F'],help='Raw/Fused statistics')
     parser.add_argument('-name',type=str,default = None, help = 'Output file name')
-    parser.add_argument('-offset',type=int,default = 0, help = 'Number of Underscores in Transcript Names')
+    parser.add_argument('-offset',type=int,default = 0, help = '[F mode] Number of Underscores in Transcript Names')
     args = parser.parse_args()
     
     if args.mode == 'R':
@@ -62,15 +62,19 @@ def main():
         if len(args.d) > 1:
             print('Raw mode can only process a single directory, processing {}'.format(directory))
         data = collect_connectivity_tables(directory)
-        default_name = '_'.join([directory,'statisics'])+'.csv'
+        melted_name = directory.strip(os.sep).split(os.sep)[-1]
+        default_name = '_'.join([melted_name,'statisics'])+'.csv'
         out_name = default_name if args.name == None else check_extension(args.name,'.csv')
         write_out_raw(data,out_name)
-    
+
     if args.mode =='F':
         data = fuse_connectivity_dirs(args.d,args.offset)
         default_name = '_'.join(sorted(data.keys())+['statisics'])+'.csv'
         out_name = default_name if args.name == None else check_extension(args.name,'.csv')
         write_out_fused(data,out_name)
+
+    if args.mode == None:
+        print 'No mode selected!'
 
 if __name__ == '__main__':
     main()
