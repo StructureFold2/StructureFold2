@@ -61,16 +61,16 @@ def three_prime_coverage(rtsc_data,parameters):
     '''Calculates TP coverage by Joseph's reckoning'''
     new_data = {}
     for name, stops in rtsc_data.items():
-		if len(stops) + -parameters['trim'] + -parameters['tp_l'] > 0:	
-			try:
-				trimmed_stops = stops[:-parameters['trim']]
-				full_end = trimmed_stops[-parameters['tp_l']:]
-				partial_end = trimmed_stops[-parameters['length']:]
-				new_data[name] = average(partial_end)/average(full_end)
-			except ZeroDivisionError:
-				new_data[name] = 0.0
-		else:
-			new_data[name] = "NA"
+        if len(stops) + -parameters['trim'] + -parameters['tp_l'] > 0:
+            try:
+                trimmed_stops = stops[:-parameters['trim']]
+                full_end = trimmed_stops[-parameters['tp_l']:]
+                partial_end = trimmed_stops[-parameters['length']:]
+                new_data[name] = average(partial_end)/average(full_end)
+            except ZeroDivisionError:
+                new_data[name] = 0.0
+        else:
+            new_data[name] = 'NA'
     extra_params = [str(parameters[q]) for q in ['length','tp_l','trim']]
     out_name = '_'.join([parameters['rtsc'].replace('.rtsc',''),'TP']+extra_params)
     out_name = check_extension(out_name,'.csv')
