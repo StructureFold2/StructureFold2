@@ -24,18 +24,18 @@ structure_statisics.py has replaced make_standed_csv.py and make_MFE_csv.py, wit
 functionality of being able to combine multiple directories of <.ct> files (connectivity tables) into a single report. 
 Older versions of RNAStructure did not include a DeltaG value for folds performed under MFE settings, but the new more consistent
 reporting of <.ct> files allows both strandedness and DeltaG to be extracted from such MFE folds, thus making one module sufficient
-for both tasks. 
+for both tasks. When summarizing multiple directories (-mode F), the names of the directories must be different.
 
 #### Usage
 ```
-Summarizes or compares MFE <.ct> files
+Summarizes MFE <.ct> files
 
 optional arguments:
   -h, --help      show this help message and exit
   -d D [D ...]    CT directory/directories
   -mode {R,F}     Raw/Fused statistics
   -name NAME      Output file name
-  -offset OFFSET  Number of Underscores in Transcript Names
+  -offset OFFSET  Number of Underscores in Transcript Names (Fused Mode)
 ```
 
 ## Planned Updates
