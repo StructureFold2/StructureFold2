@@ -52,9 +52,9 @@ def write_out_raw(raw_data,out_fyle='derp.csv'):
 def main():
     parser = argparse.ArgumentParser(description='Summarizes MFE <.ct> files')
     parser.add_argument('-d',type=str,help='CT directory/directories', nargs='+')
-    parser.add_argument('-mode',type=str.upper,default= None,choices = ['R','F'],help='Raw/Fused statistics')
+    parser.add_argument('-mode',type=str.upper,default= None,choices = ['F','R'],help='Fused/Raw statistics')
     parser.add_argument('-name',type=str,default = None, help = 'Output file name')
-    parser.add_argument('-offset',type=int,default = 0, help = 'Number of Underscores in Transcript Names (Fused Mode)')
+    parser.add_argument('-offset',type=int,default = 0, help = 'Number of Underscores in Transcript Names')
     args = parser.parse_args()
     
     if args.mode == 'R':
@@ -69,7 +69,7 @@ def main():
 
     if args.mode =='F':
         data = fuse_connectivity_dirs(args.d,args.offset)
-        default_name = '_'.join(sorted(data.keys())+['statisics'])+'.csv'
+        default_name = '_'.join(sorted(data.keys())+['statistics'])+'.csv'
         out_name = default_name if args.name == None else check_extension(args.name,'.csv')
         write_out_fused(data,out_name)
 
