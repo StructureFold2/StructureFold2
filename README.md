@@ -1,6 +1,7 @@
 # StructureFold2 <img src='assets/sf2_logo.png' align='right' width='400px' />
 
 Please review the included manual, SF2_Manual.pdf, for information on using StructureFold2.
+If you use StructureFold2 in any of your reseach, please cite [_Tack et al._,2018](https://www.sciencedirect.com/science/article/pii/S1046202317303535)
 
 **Software Dependencies**
 + [Python 2.7.X](https://www.python.org/)
@@ -20,7 +21,7 @@ Please review the included manual, SF2_Manual.pdf, for information on using Stru
 ### structure_statistics.py
 structure_statisics.py has replaced make_standed_csv.py and make_MFE_csv.py, with the added
 functionality of being able to combine multiple directories of <.ct> files (connectivity tables) into a single report. 
-Older versions of RNAStructure did not include a DeltaG value for folds performed under MFE settings, but the more consistent
+Older versions of RNAStructure did not include a DeltaG value for folds performed under MFE settings, but the new more consistent
 reporting of <.ct> files allows both strandedness and DeltaG to be extracted from such MFE folds, thus making one module sufficient
 for both tasks. 
 
