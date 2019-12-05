@@ -21,7 +21,7 @@ Please review the included manual, SF2_Manual.pdf, for information on using Stru
 structure_statisics.py has replaced make_standed_csv.py and make_MFE_csv.py, with the added
 functionality of being able to combine multiple directories of <.ct> files (connectivity tables) into a single report. 
 Older versions of RNAStructure did not include a DeltaG value for folds performed under MFE settings, but the more consistent
-reporting of <.ct> files allows both strandedness and DeltaG to be extracted from such MFE folds, thus makine one module sufficient
+reporting of <.ct> files allows both strandedness and DeltaG to be extracted from such MFE folds, thus making one module sufficient
 for both tasks. 
 
 #### Usage
