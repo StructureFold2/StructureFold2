@@ -15,15 +15,33 @@ Please review the included manual, SF2_Manual.pdf, for information on using Stru
 + [RNAStructure](https://rna.urmc.rochester.edu/RNAstructure.html)
 + [R](https://www.r-project.org/)
 
+## Updates and Errata
+
+### structure_statistics.py
+structure_statisics.py has replaced make_standed_csv.py and make_MFE_csv.py, with the added
+functionality of being able to combine multiple directories of <.ct> (connectivity tables) files into a single report. 
+Older versions of RNAStructure did not include a DeltaG value for folds performed under MFE settings, but the more consistent
+reporting of <.ct> files allows both strandedness and DeltaG to be extracted from such MFE folds, thus makine one module sufficient
+for both tasks. 
+
+#### Usage
+```
+Summarizes or compares MFE <.ct> files
+
+optional arguments:
+  -h, --help      show this help message and exit
+  -d D [D ...]    CT directory/directories
+  -mode {R,F}     Raw/Fused statistics
+  -name NAME      Output file name
+  -offset OFFSET  Number of Underscores in Transcript Names
+```
+
 ## Planned Updates
 
-* <.ct> files generated under MFE settings with RNAStructure now contain a DeltaG value, thus...
-    * make_standed_csv.py and make_MFE_csv.py will be merged into one module.
-    * make_PPV_csv.py will also be rolled into this module; structure_statistics.py.
-    * Should be able to report/consolidate any number of directories of <.ct> files ito a single file.
-    * This will fully deprecate all three of those scripts.<br><br>
+* make_PPV_csv.py will be merged into structure_statisics.py
+* coverage_overlap.py will be merged into rtsc_coverage.py
 * Features that are exclusive to <.react> files have been requested to be available for <.rtsc>,
 or vice-versa. I.E, rather than making a separate module for react_correlation to complement rtsc_correlation,
 both features will be included in a single module; modules that work on both will be prefixed with 'rx'. So react_correlation and rtsc_correlation
-would become rx_correlation, thus deprecating the old module entirely.
+would become rx_correlation, thus deprecating the old module(s) entirely.
 
