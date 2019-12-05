@@ -54,7 +54,7 @@ def main():
     parser.add_argument('-d',type=str,help='CT directory/directories', nargs='+')
     parser.add_argument('-mode',type=str.upper,default= None,choices = ['R','F'],help='Raw/Fused statistics')
     parser.add_argument('-name',type=str,default = None, help = 'Output file name')
-    parser.add_argument('-offset',type=int,default = 0, help = '[F mode] Number of Underscores in Transcript Names')
+    parser.add_argument('-offset',type=int,default = 0, help = 'Number of Underscores in Transcript Names (Fused Mode)')
     args = parser.parse_args()
     
     if args.mode == 'R':
