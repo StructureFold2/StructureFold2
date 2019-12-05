@@ -1,7 +1,8 @@
 # StructureFold2 <img src='assets/sf2_logo.png' align='right' width='400px' />
 
-Please review the included manual, SF2_Manual.pdf, for information on using StructureFold2.
-If you use StructureFold2 in any of your reseach, please cite [_Tack et al._,2018](https://www.sciencedirect.com/science/article/pii/S1046202317303535)
+For information on using StructureFold2, Please consult the included manual, SF2_Manual.pdf.
+If you use StructureFold2, please cite [_Tack et al._, 2018](https://www.sciencedirect.com/science/article/pii/S1046202317303535).
+
 
 **Software Dependencies**
 + [Python 2.7.X](https://www.python.org/)
