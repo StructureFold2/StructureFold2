@@ -1,95 +1,62 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 #Imports
 import glob
-from collections import Counter
 import argparse
-from itertools import islice
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.Alphabet import IUPAC
+import collections
+from sf2libs.structure_io import read_fasta, read_rtsc, check_extension
 
-def read_in_fasta(fasta_fyle):
-    '''Reads in a fasta file to a dictionary'''
-    fasta_dict = {}
-    fasta_sequences,fasta_dict = SeqIO.parse(open(fasta_fyle),'fasta'),{}
-    for fasta in fasta_sequences:
-        fasta_dict[fasta.id] = str(fasta.seq)
-    return fasta_dict
-
-def read_in_rtsc(rtsc_fyle):
-    '''Reads in a reactivity file to a dictionary'''
-    information = {}
-    with open(rtsc_fyle,'r') as f:
-        while True:
-            next_n_lines = list(islice(f, 3))
-            if not next_n_lines:
-                break
-            transcript,stops,empty_line = [n.strip() for n in next_n_lines]
-            information[transcript] = [int(x) for x in stops.split('\t')]
-    return information
-
-def coverage_dictionary_generic(sequence_dictionary,rtstop_dictionary,specificity='AC'):
-    '''Calculates coverage on each transcript, returns a dictionary of transcript to coverage value with user defined specificity'''
-    coverage_dict = {}
-    for transcript,stops in rtstop_dictionary.items():
-        seq = sequence_dictionary[transcript].upper()[:-1]
-        seq_counter = Counter(seq)
-        target_counts = sum([seq_counter[letter] for letter in specificity])
-        matched = zip(list(seq),stops[1:])
-        target_hits = sum([derp[1] for derp in matched if derp[0] in specificity])
+def rtsc_coverage(rtsc_file,fasta_index,specificity='AC'):
+    '''Generates a coverage dictionary for an <.rtsc> file with a given specificity'''
+    rtsc_data,coverage = read_rtsc(rtsc_file), {}
+    for transcript,stops in rtsc_data.items():
+        effective_sequence = fasta_index[transcript].upper()[:-1]
+        effective_stops = stops[1:]
+        matched = zip(effective_sequence,effective_stops)
+        specific_bases_seq = sum([v for k, v in collections.Counter(effective_sequence).items() if k in specificity])
+        specific_bases_stops = sum([item[1] for item in filter(lambda x: x[0] in specificity, matched)])
         try:
-            coverage_dict[transcript] = float(target_hits)/target_counts
+            coverage[transcript] = float(specific_bases_stops)/specific_bases_seq
         except ZeroDivisionError:
-            coverage_dict[transcript] = 0
-    return coverage_dict
+            coverage[transcript] = 0
+    return coverage
 
-def batch_coverage_dictionary(fasta_fyle,batch_specificity):
-    '''generates a dictionary for each file'''
-    grande_dictionary = {}
-    sequence_dictionary = read_in_fasta(fasta_fyle)
-    for rtsc_fyle in sorted(glob.glob('*.rtsc')):
-        rtsc_dict = read_in_rtsc(rtsc_fyle)
-        grande_dictionary[rtsc_fyle.replace('.rtsc','')] = coverage_dictionary_generic(sequence_dictionary,rtsc_dict,batch_specificity)
-    return grande_dictionary
+def collect_coverages(fyle_list,fasta_fyle,specificity='AC'):
+    '''Applies rtsc_coverage to files'''
+    fasta_index,coverage_data = read_fasta(fasta_fyle),{}
+    for fyle in fyle_list:
+        coverage_data[fyle.replace('.rtsc','')] = rtsc_coverage(fyle,fasta_index,specificity)
+    return coverage_data
 
-def write_single_coverage(coverage_dict,infyle):
-    '''Writes out in csv format'''
-    outfile = infyle.replace('.rtsc','')+'_coverage.csv'
-    header = ','.join(['transcript',infyle.replace('.rtsc','')+'_coverage'])
-    with open(outfile,'w') as g:
+def write_coverage(data,out_fyle='derp.csv'):
+    '''Writes out coverages'''
+    h_keys = sorted(data.keys())
+    v_keys = sorted(list(set.union(*map(set, data.values()))))
+    header = ','.join(['transcript']+[derp+'_coverage' for derp in h_keys])
+    with open(out_fyle,'w') as g:
         g.write(header+'\n')
-        for transcript, value in sorted(coverage_dict.items(), key=lambda x: x[1],reverse=True):
-            g.write(','.join([transcript,str(value)])+'\n')
-
-def write_batch_coverage(batch_coverage_dictionary):
-    '''Write out all the information based on alphabetical order'''
-    outfile = '_'.join(sorted(batch_coverage_dictionary.keys()))+'_coverage.csv'
-    header = ','.join(['transcript']+[name+'_coverage' for name in sorted(batch_coverage_dictionary.keys())])
-    all_keys = [z.keys() for z in batch_coverage_dictionary.values()]
-    key_set = set([j for i in all_keys for j in i])
-    with open(outfile,'w') as g:
-        g.write(header+'\n')
-        for transcript in key_set:
-            outline = [str(batch_coverage_dictionary[name][transcript]) if transcript in batch_coverage_dictionary[name] else 'NA' for name in sorted(batch_coverage_dictionary.keys())]
-            g.write(','.join([transcript]+outline)+'\n')
+        for transcript in v_keys:
+            entry = [str(data[h_key][transcript]) if transcript in data[h_key] else 'NA' for h_key in h_keys]
+            out_line = ','.join([transcript]+entry)
+            g.write(out_line+'\n')
 
 def main():
-    parser = argparse.ArgumentParser(description='Creates <.csv> of stop coverages from <.rtsc> files in the directory')
-    parser.add_argument("index",type=str,help="<.fasta> file used to generate the <.rtsc>")
-    parser.add_argument('-single',default = None, help = 'Operate on this single file, rather than the directory')
+    parser = argparse.ArgumentParser(description='Creates a <.csv> of stop coverages from <.rtsc> files')
+    parser.add_argument('-f',type=str,help='<.rtsc> files to operate on', nargs='+')
+    parser.add_argument('index',type=str,help='<.fasta> file used to generate the all <.rtsc> ')
+    parser.add_argument('-name',type=str,default = None, help = 'Output file name')
     parser.add_argument('-bases',type=str,default='AC', help='[default = AC] Coverage Specificity')
     args = parser.parse_args()
-    if args.single != None:
-        input_fasta = read_in_fasta(args.index)
-        input_rtsc = read_in_rtsc(args.single)
-        single_data = coverage_dictionary_generic(input_fasta,input_rtsc,args.bases)
-        write_single_coverage(single_data,args.single)
-    else:
-        batch_coverage = batch_coverage_dictionary(args.index,args.bases)
-        write_batch_coverage(batch_coverage)
-        
+    
+    #Generate or assign name
+    default_name = '_'.join(sorted([fyle.replace('.rtsc','') for fyle in args.f]+['coverage']))+'.csv'
+    out_name = default_name if args.name == None else check_extension(args.name,'.csv')
+    
+    #Collect Data
+    coverage_data = collect_coverages(args.f,args.index,args.bases)
+    
+    #Write Data
+    write_coverage(coverage_data,out_name)
 
 if __name__ == '__main__':
     main()
-
