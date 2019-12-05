@@ -50,7 +50,7 @@ def write_out_raw(raw_data,out_fyle='derp.csv'):
             g.write(aline+'\n')
 
 def main():
-    parser = argparse.ArgumentParser(description='Summarizes or compares MFE <.ct> files')
+    parser = argparse.ArgumentParser(description='Summarizes MFE <.ct> files')
     parser.add_argument('-d',type=str,help='CT directory/directories', nargs='+')
     parser.add_argument('-mode',type=str.upper,default= None,choices = ['R','F'],help='Raw/Fused statistics')
     parser.add_argument('-name',type=str,default = None, help = 'Output file name')
