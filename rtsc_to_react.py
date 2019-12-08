@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 '''
 This script takes two <.rtsc> along with the base <.fasta> to calculate the reactivity scores of each nucelotide.
@@ -43,7 +43,7 @@ def read_in_rtsc(rtsc_fyle):
             if not next_n_lines:
                 break
             transcript,stops,empty_line = [n.strip() for n in next_n_lines]
-            information[transcript] = [int(x) for x in stops.split('\t')]
+            information[transcript] = [float(x) for x in stops.split('\t')]
     return information
 
 def calculate_raw_reactivity(reagent_minus,reagent_plus,nlog_off=False):
