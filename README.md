@@ -29,7 +29,8 @@ directories, generating a single <.csv> organized by transcript. When using mult
 directories, the names of the directories must be different. If your transcript names contain underscores, 
 input the number they contain (-offset). Raw mode (-mode R) instead operates on a single directory and 
 generates a single <.csv> organized by the files contained in the directory, and may be of use when 
-it is hard to automatically parse transcript names.
+it is hard to automatically parse transcript names. By default, 'NA' will be logged as the DetlaG for <.ct> files
+that do not contain a DeltaG value; this value is configurable (-na).
 
 #### Usage
 ```
@@ -40,6 +41,7 @@ optional arguments:
   -d D [D ...]    CT directory/directories
   -mode {F,R}     Fused/Raw statistics
   -name NAME      Output file name
+  -na NA          [default = NA] Null deltaG value
   -offset OFFSET  Number of Underscores in Transcript Names
 ```
 

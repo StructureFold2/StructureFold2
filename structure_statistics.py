@@ -14,11 +14,11 @@ from sf2libs.connectivity_table import collect_connectivity_tables
 from sf2libs.structure_io import check_extension
 
 #Functions
-def fuse_connectivity_dirs(list_of_directories,offset):
+def fuse_connectivity_dirs(list_of_directories,offset,empty):
     '''Applys the CT_Report table to directories, gathers information'''
     mass_data = {}
     for directory in list_of_directories:
-        raw_dict = collect_connectivity_tables(directory)
+        raw_dict = collect_connectivity_tables(directory,empty)
         #We want to collapse entries around transcript between directories
         #Some transcript nomenclatures have underscores in them, thus an offset can work around it
         melted_dict = {'_'.join(k.split('_')[:1+offset]):v for k, v in raw_dict.items()}
@@ -54,6 +54,7 @@ def main():
     parser.add_argument('-d',type=str,help='CT directory/directories', nargs='+')
     parser.add_argument('-mode',type=str.upper,default= None,choices = ['F','R'],help='Fused/Raw statistics')
     parser.add_argument('-name',type=str,default = None, help = 'Output file name')
+    parser.add_argument('-na',type=str,default = 'NA', help = '[default = NA] Null deltaG value')
     parser.add_argument('-offset',type=int,default = 0, help = 'Number of Underscores in Transcript Names')
     args = parser.parse_args()
     
@@ -61,14 +62,14 @@ def main():
         directory = args.d[0]
         if len(args.d) > 1:
             print('Raw mode can only process a single directory, processing {}'.format(directory))
-        data = collect_connectivity_tables(directory)
+        data = collect_connectivity_tables(directory,args.na)
         melted_name = directory.strip(os.sep).split(os.sep)[-1]
         default_name = '_'.join([melted_name,'statisics'])+'.csv'
         out_name = default_name if args.name == None else check_extension(args.name,'.csv')
         write_out_raw(data,out_name)
 
     if args.mode =='F':
-        data = fuse_connectivity_dirs(args.d,args.offset)
+        data = fuse_connectivity_dirs(args.d,args.offset,args.na)
         default_name = '_'.join(sorted(data.keys())+['statistics'])+'.csv'
         out_name = default_name if args.name == None else check_extension(args.name,'.csv')
         write_out_fused(data,out_name)
