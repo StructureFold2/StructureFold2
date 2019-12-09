@@ -21,6 +21,13 @@ import argparse
 import re
 import os
 
+subs = dict((('R',['A','G']),('Y',['C','T']),('W',['A','T']),
+                ('S',['G','C']),('M',['A','C']),('K',['G','T']),
+                ('B',['G','C','T']),('H',['A','C','T']),
+                ('D',['A','G','T']),('V',['A','G','C']),
+                ('N',['A','C','G','T']),
+                ('A',['A']),('C',['C']),('G',['G']),('T',['T'])))
+
 #Functions
 def read_fasta(genome_fasta):
     fasta_sequences,fasta_dict =SeqIO.parse(open(genome_fasta),'fasta'),{}
@@ -70,6 +77,21 @@ def generate_motif_coords(sequence,motif):
     '''Returns all coordinates of matching patterns'''
     return [(match.start(), match.end()) for match in re.finditer(motif, sequence)]
 
+def generate_wildcard_motif_coords(sequence,motif):
+    k = len(motif)
+    result = []
+    for start in range(len(sequence) + 1 -k):
+        kmer = sequence[start:start + k]
+        if check_pattern(kmer, motif):
+            result.append((start, start + k))
+    return result
+
+def check_pattern(seq, motif):
+    for pos, base in enumerate(seq):
+        if not base in subs[motif[pos]]:
+            return False
+    return True
+    
 def base_pull(item,index,fill='-'):
     '''Pulls from phantom areas'''
     if index < 0:
@@ -92,22 +114,34 @@ def buffered_pull(target,coord_tupe,fpbuffer=0,tpbuffer=0,e_fill='-'):
     else:
         return None
 
-def cold_stepper(fasta_seqs,control_reacts,experimental_reacts,motif,fpbuffer,tpbuffer):
+def cold_stepper(fasta_seqs,control_reacts,experimental_reacts,motif,fpbuffer,tpbuffer,mode):
     '''Does the thing'''
     sanity_area = {}
     for k, v in fasta_seqs.items():
         try:
             control,experimental = control_reacts[k],experimental_reacts[k]
             change = subtract_reacts(experimental,control)
-            indexes = generate_motif_coords(v,motif)
-            for i in indexes:
-                new_seq = buffered_pull(v,i,fpbuffer,tpbuffer,'-')
-                con_numbs = buffered_pull(control,i,fpbuffer,tpbuffer,'-')
-                exp_numbs = buffered_pull(experimental,i,fpbuffer,tpbuffer,'-')
-                chg_nubms = buffered_pull(change,i,fpbuffer,tpbuffer,'-')
-                #q_key = '_'.join([k, '~'.join([str(i[0]+1),str(i[1]+1)])])
-                q_key = (k,str(i[0]+1),str(i[1]+1))
-                sanity_area[q_key] = [new_seq,con_numbs,exp_numbs,chg_nubms]
+            if mode == 0:
+                seqs = permute_DNA(motif)
+                for seq in seqs:
+                    indexes = generate_motif_coords(v,seq)
+                    for i in indexes:
+                        new_seq = buffered_pull(v,i,fpbuffer,tpbuffer,'-')
+                        con_numbs = buffered_pull(control,i,fpbuffer,tpbuffer,'-')
+                        exp_numbs = buffered_pull(experimental,i,fpbuffer,tpbuffer,'-')
+                        chg_nubms = buffered_pull(change,i,fpbuffer,tpbuffer,'-')
+                        q_key = (k,str(i[0]+1),str(i[1]+1))
+                        sanity_area[q_key] = [new_seq,con_numbs,exp_numbs,chg_nubms]
+
+            else:
+                indexes = generate_wildcard_motif_coords(v,motif)
+                for i in indexes:
+                    new_seq = buffered_pull(v,i,fpbuffer,tpbuffer,'-')
+                    con_numbs = buffered_pull(control,i,fpbuffer,tpbuffer,'-')
+                    exp_numbs = buffered_pull(experimental,i,fpbuffer,tpbuffer,'-')
+                    chg_nubms = buffered_pull(change,i,fpbuffer,tpbuffer,'-')
+                    q_key = (k,str(i[0]+1),str(i[1]+1))
+                    sanity_area[q_key] = [new_seq,con_numbs,exp_numbs,chg_nubms]
         except KeyError:
             continue
     return sanity_area
@@ -198,15 +232,14 @@ def permute_DNA(dna_string):
         except KeyError:
             return []
 
-def generate_searchable_motifs(user_input):
+def generate_motifs(user_input):
     '''Reads either a file or a motif, returns list of motifs to search for'''
     if os.access(user_input,os.R_OK):
         with open(user_input,'r') as f:
             basic_motifs = [line.strip() for line in f]
-            ex_motifs = [item for sublist in [permute_DNA(motif) for motif in basic_motifs] for item in sublist]
-            return ex_motifs
+            return basic_motifs
     else:
-        return permute_DNA(user_input)
+        return [user_input]
 
 
 #Main Function
@@ -224,7 +257,7 @@ def main():
     args = parser.parse_args()
     
     #Generate all motifs that need to be processed
-    searches = generate_searchable_motifs(args.in_data)
+    searches = generate_motifs(args.in_data)
     
     #Read in both groups of reactivities, fasta file with sequences
     control_reactivty,experimental_reactivty = read_reactivities(args.control),read_reactivities(args.experimental)
@@ -241,8 +274,18 @@ def main():
         #Generate name for each out file
         out_name = '_'.join([args.control.replace('.react',''),args.experimental.replace('.react',''),search,str(args.fp)+'fp',str(args.tp)+'tp'])+'.csv'
         
+        #calculate the number of wildcards in motif to determine the mode to search for motifs
+        counter = 0
+        for i in search:
+            counter += len(subs[i])-1
+        
+        if counter < 10:
+            mode = 0
+        else:
+            mode = 1
+        
         #Generate Windows
-        quiet_noises = cold_stepper(target_seqs,control_reactivty,experimental_reactivty,search,args.fp,args.tp)
+        quiet_noises = cold_stepper(target_seqs,control_reactivty,experimental_reactivty,search,args.fp,args.tp,mode)
         
         #Output for <.csv>
         dump_csv(quiet_noises,out_name,search,args.fp,args.tp)
