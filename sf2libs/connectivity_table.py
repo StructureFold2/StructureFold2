@@ -24,11 +24,11 @@ class CT_Report(object):
             self.perc_stranded = len([z for z in paired if z != '0'])/float(self.length)
             self.perc_unstranded = paired.count('0')/float(self.length)
 
-def collect_connectivity_tables(directory):
+def collect_connectivity_tables(directory,empty_dg):
     '''Snags a directory worth of CT files'''
     home,data = os.getcwd(),{}
     os.chdir(directory)
     for fyle in glob.glob('*.ct'):
-        data[fyle] = CT_Report(fyle)
+        data[fyle] = CT_Report(fyle,empty_dg)
     os.chdir(home)
     return data
