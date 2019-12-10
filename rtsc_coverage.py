@@ -40,16 +40,29 @@ def write_coverage(data,out_fyle='derp.csv'):
             out_line = ','.join([transcript]+entry)
             g.write(out_line+'\n')
 
+def write_ol(data,out_fyle='derp.txt',threshold=1.0):
+    '''Writes out an overlap file'''
+    h_keys = sorted(data.keys())
+    shared_transcripts = sorted(list(set.intersection(*map(set, data.values()))))
+    with open(out_fyle,'w') as g:
+        for transcript in shared_transcripts:
+            passing = all([data[h_key][transcript] >= threshold for h_key in h_keys])
+            if passing:
+                g.write(transcript+'\n')
+
 def main():
     parser = argparse.ArgumentParser(description='Creates a <.csv> of stop coverages from <.rtsc> files')
     parser.add_argument('-f',type=str,help='<.rtsc> files to operate on', nargs='+')
     parser.add_argument('index',type=str,help='<.fasta> file used to generate the all <.rtsc> ')
-    parser.add_argument('-name',type=str,default = None, help = 'Output file name')
     parser.add_argument('-bases',type=str,default='AC', help='[default = AC] Coverage Specificity')
+    parser.add_argument('-name',type=str,default = None, help='Output file name')
+    parser.add_argument('-ol',action='store_true', help='Create an overlap file')
+    parser.add_argument('-ot',type=float,default=1.0, help='[default = 1.0] Overlap file threshold')
+    parser.add_argument('-on',type=str,default=None, help='Overlap file name')
     args = parser.parse_args()
     
     #Generate or assign name
-    default_name = '_'.join(sorted([fyle.replace('.rtsc','') for fyle in args.f]+['coverage']))+'.csv'
+    default_name = '_'.join(sorted([fyle.replace('.rtsc','') for fyle in args.f])+['coverage'])+'.csv'
     out_name = default_name if args.name == None else check_extension(args.name,'.csv')
     
     #Collect Data
@@ -57,6 +70,12 @@ def main():
     
     #Write Data
     write_coverage(coverage_data,out_name)
+    
+    #Create overlap file
+    if args.ol:
+        default_ol = '_'.join(sorted([fyle.replace('.rtsc','') for fyle in args.f])+['overlap',str(args.ot)])+'.txt'
+        out_ol = default_ol if args.on == None else check_extension(args.on,'.txt')
+        write_ol(coverage_data,out_ol,args.ot)
 
 if __name__ == '__main__':
     main()
