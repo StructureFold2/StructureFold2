@@ -68,7 +68,7 @@ def subtract_reacts(reacts_A,reacts_B):
 
 def generate_motif_coords(sequence,motif):
     '''Returns all coordinates of matching patterns'''
-    return [(match.start(), match.end()) for match in re.finditer(motif, sequence)]
+    return [match.span(1) for match in re.finditer('(?=('+motif+'))', sequence)]
 
 def base_pull(item,index,fill='-'):
     '''Pulls from phantom areas'''
