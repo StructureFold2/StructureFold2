@@ -32,7 +32,7 @@ generates a single <.csv> organized by the files contained in the directory, and
 it is hard to automatically parse transcript names. By default, 'NA' will be logged as the DetlaG for <.ct> files
 that do not contain a DeltaG value; this value is configurable (-na).
 
-#### Usage
+**Usage**
 ```
 Summarizes MFE <.ct> files
 
@@ -51,8 +51,7 @@ The functionality of coverage_overlap.py has been combined into react_coverage.p
 overall organization. Coverage overlap files are now generated concurently to the coverage calculation (-ol). 
 Input file selection is now more precise for complex experimental designs (-f).
 
-#### Usage
-
+**Usage**
 ```
 Creates a <.csv> of stop coverages from <.rtsc> files
 
@@ -70,7 +69,6 @@ optional arguments:
 ```
 
 ## Planned Updates
-
 * make_PPV_csv.py will be merged into structure_statisics.py<br><br>
 * Features that are exclusive to <.react> files have been requested to be available for <.rtsc>,
 or vice-versa. I.E, rather than making a separate module for react_correlation to complement rtsc_correlation,
@@ -88,4 +86,4 @@ into the SF pipeline in the future. STAR contains much better internal logging a
 Bowtie2 support will be maintianed for users that do not have access to a machine
 with enough RAM run STAR.<br><br>
 * Hardware guides (i.e. Linux workstation builds) for those labs
-looking to get a machine to do bioinformatics.
+looking to get a machine to do bioinformatics may be created.
