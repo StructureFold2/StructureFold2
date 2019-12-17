@@ -45,12 +45,47 @@ optional arguments:
   -offset OFFSET  Number of Underscores in Transcript Names
 ```
 
+
+### rtsc_coverage.py
+The functionality of coverage_overlap.py has been combined into react_coverage.py for convenience and
+overall organization. Coverage overlap files are now generated concurently to the coverage calculation (-ol). 
+Input file selection is now more precise for complex experimental designs (-f).
+
+#### Usage
+
+```
+Creates a <.csv> of stop coverages from <.rtsc> files
+
+positional arguments:
+  index         <.fasta> file used to generate <.rtsc>
+
+optional arguments:
+  -h, --help    show this help message and exit
+  -f F [F ...]  <.rtsc> files to operate on
+  -bases BASES  [default = AC] Coverage Specificity
+  -name NAME    Output file name
+  -ol           Create an overlap file
+  -ot OT        [default = 1.0] Overlap file threshold
+  -on ON        Overlap file name
+```
+
 ## Planned Updates
 
-* make_PPV_csv.py will be merged into structure_statisics.py
-* coverage_overlap.py will be merged into rtsc_coverage.py
+* make_PPV_csv.py will be merged into structure_statisics.py<br><br>
 * Features that are exclusive to <.react> files have been requested to be available for <.rtsc>,
 or vice-versa. I.E, rather than making a separate module for react_correlation to complement rtsc_correlation,
-both features will be included in a single module; modules that work on both will be prefixed with 'rx'. So react_correlation and rtsc_correlation
-would become rx_correlation, thus deprecating the old module(s) entirely.
-
+both features will be included in a single module; modules that work on both will be prefixed with 'rx'. 
+So react_correlation and rtsc_correlationwould become rx_correlation, thus 
+deprecating the old module(s) entirely.<br><br>
+* Excessive amounts of wildcards used in react_static_motif.py result in a very
+computationally expensive and slow search, when the targeted motif may actually not be
+specific, i.e. the user just wants any region of length n with a given base composition,
+i.e. all stretches of only G and C of over 10 bases in length. 
+A new mode supporting this will be added.<br><br>
+* Add support for [STAR](https://github.com/alexdobin/STAR) into fastq_mapper.py. STAR is **much** faster than 
+[Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml), and will be integrated
+into the SF pipeline in the future. STAR contains much better internal logging as well. 
+Bowtie2 support will be maintianed for users that do not have access to a machine
+with enough RAM run STAR.<br><br>
+* Hardware guides (i.e. Linux workstation builds) for those labs
+looking to get a machine to do bioinformatics.
