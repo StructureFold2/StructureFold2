@@ -53,7 +53,7 @@ def write_ol(data,out_fyle='derp.txt',threshold=1.0):
 def main():
     parser = argparse.ArgumentParser(description='Creates a <.csv> of stop coverages from <.rtsc> files')
     parser.add_argument('-f',type=str,help='<.rtsc> files to operate on', nargs='+')
-    parser.add_argument('index',type=str,help='<.fasta> file used to generate <.rtsc> ')
+    parser.add_argument('index',type=str,help='<.fasta> file used to generate <.rtsc>')
     parser.add_argument('-bases',type=str,default='AC', help='[default = AC] Coverage Specificity')
     parser.add_argument('-name',type=str,default = None, help='Output file name')
     parser.add_argument('-ol',action='store_true', help='Create an overlap file')
