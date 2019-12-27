@@ -45,7 +45,6 @@ optional arguments:
   -offset OFFSET  Number of Underscores in Transcript Names
 ```
 
-
 ### rtsc_coverage.py
 The functionality of coverage_overlap.py has been combined into react_coverage.py for convenience and
 overall organization. Coverage overlap files are now generated concurently to the coverage calculation (-ol). 
@@ -66,6 +65,32 @@ optional arguments:
   -ol           Create an overlap file
   -ot OT        [default = 1.0] Overlap file threshold
   -on ON        Overlap file name
+```
+
+### rtsc_downscale.py
+This module offers several avenues to downscale <.rtsc> files, creating
+new <.rtsc> files with only a subset of all the reverse transcriptase stops. To
+multiply the total reverse transcriptase counts of each base by a given ratio (-ratio), 
+use FRACTIONAL mode; fractional stops do not interfere with the reactivity calculation.
+Pseudo-random removal of stops can be performed using RANDOMREAD mode; each RT stop, regardless
+of the base it occurs on has specificed chance (-ratio) to be retained. RANDOMPOSITION mode
+continually selects a random position along each transcript until it can remove a stop, 
+removing stops in this manner until a specified ratio (-ratio) of the total original 
+number of stops remain on that transcript.
+
+**Usage**
+```
+Downscales <.rtsc> files.
+
+positional arguments:
+  {FRACTIONAL,RANDOMREAD,RANDOMPOSITION}
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f F [F ...]          Specific <.rtsc> to operate on
+  -ratio RATIO          [default = 0.50] Fraction of RT stops to retain
+  -restrict RESTRICT    Limit downscaling to these specific transcripts <.txt>
+  -sort                 Sort output by transcript name
 ```
 
 ## Planned Updates

@@ -9,24 +9,12 @@ stop until enough have been removed.
 '''
 
 #Imports
-import itertools
+from sf2libs.structure_io import read_rtsc, write_rtsc, read_restrict
 import random
 import glob
 import argparse
 
 #Functions
-def read_in_rtsc(rtsc_fyle):
-    '''Reads a <.rtsc> file into a dictionary, transcript_name:[list of stop numbers]'''
-    information = {}
-    with open(rtsc_fyle,'r') as f:
-        while True:
-            next_n_lines = list(itertools.islice(f, 3))
-            if not next_n_lines:
-                break
-            transcript,stops,empty_line = [n.strip() for n in next_n_lines]
-            information[transcript] = [int(x) for x in stops.split('\t')]
-    return information
-
 def keep_static_percentage(alist,percentage=.50):
     '''Evenly retains a given percentage of RT hits. Can generate fractional hits.'''
     return [float(i)*percentage for i in alist]
@@ -52,32 +40,12 @@ def random_per_stop(alist,chance=.50):
         newlist.append(len(keeps))
     return newlist
 
-def write_rtsc(rtsc_dictionary,sort_flag=False,outfile='data.rtsc'):
-    '''Takes a dictionary, writes to a file'''
-    with open(outfile,'w') as g:
-        if sort_flag == False:
-            for transcript, value in rtsc_dictionary.items():
-                g.write(transcript+'\n')
-                g.write('\t'.join([str(number) for number in value])+'\n\n')
-        else:
-            for transcript, value in sorted(rtsc_dictionary.items()):
-                g.write(transcript+'\n')
-                g.write('\t'.join([str(number) for number in value])+'\n\n')
-
-def get_covered_transcripts(coverage_fyle):
-    '''Reads in a standard overlapped coverage file'''
-    info = {}
-    with open(coverage_fyle,'r') as f:
-        for line in f:
-            info[line.strip()] = None
-    return info
-
 def main():
     parser = argparse.ArgumentParser(description='Downscales <.rtsc> files.')
-    parser.add_argument('-f',default=None, nargs='+', help = '<.rtsc> to operate on')
+    parser.add_argument('-f',default=None, nargs='+', help = 'Specific <.rtsc> to operate on')
     parser.add_argument('mode',type=str.upper, choices = ['FRACTIONAL','RANDOMREAD','RANDOMPOSITION'])
     parser.add_argument('-ratio',type=float,default=.50, help='[default = 0.50] Fraction of RT stops to retain')
-    parser.add_argument('-restrict',default = None, help = 'Limit analysis to these specific transcripts <.txt> ')
+    parser.add_argument('-restrict',default = None, help = 'Limit downscaling to these specific transcripts <.txt> ')
     parser.add_argument('-sort',action='store_true',default=False,help = 'Sort output by transcript name')
     args = parser.parse_args()
 
@@ -87,15 +55,18 @@ def main():
 
     #Iterate through file(s) 
     for fyle in fyle_lyst:
-        data,new_fyle = read_in_rtsc(fyle),fyle.replace('.rtsc','_'+args.mode+'_'+str(args.ratio).replace('.','')+'.rtsc')
+        
+        #Read in the <.rtsc>, generate new name
+        data = read_rtsc(fyle)
+        new_fyle = fyle.replace('.rtsc','_'+args.mode+'_'+str(args.ratio).replace('.','')+'.rtsc')
         
         #You could be doing random for a long time if you do not filter by coverage.
         if args.restrict != None:
-            covered = get_covered_transcripts(args.restrict)
-            data = dict([(x,z) for x,z in data.items() if x in covered])
+            covered = read_restrict(args.restrict)
+            data = {name:stops for name,stops in data.items() if name in covered} 
 
-        new_data = dict([(k, downscale_methods[args.mode](v,args.ratio)) for k, v in data.items()])
-        write_rtsc(new_data,args.sort,new_fyle)
+        new_data = {k:downscale_methods[args.mode](v,args.ratio) for k, v in data.items()}
+        write_rtsc(new_data,new_fyle,args.sort)
 
 #Main
 if __name__ == '__main__':
