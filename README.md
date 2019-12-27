@@ -93,6 +93,38 @@ optional arguments:
   -sort                 Sort output by transcript name
 ```
 
+### react_motif.py
+This module searches for instances of given motif(s) within two <.react> files,
+thereby cataloging all of the reactivity change in and around those motifs. Both the 
+control and experimental <.react> files must have been generated against the same <.fasta>, 
+which also must be provided. A single motif can be entered on the command line (i.e. TATTA),
+or a flat text file containing multiple motifs, one per line, can be entered. Bases directly
+up or down stream of the motif can also be included in the output (-fp, -tp, default 5). 
+In addition to the default <.csv> output, a new <.fasta> and corresponding <.react>s of the 
+motif containing regions can be created (-fastaout, -reactout), where these files could be 
+useful for guiding folding algorithms to regions containing motifs of interest.This module replaces 
+react_static_motif.py entirely.
+
+**Usage**
+```
+Searches for reactivity differences around given motifs
+
+positional arguments:
+  control             control <.react> file
+  experimental        experimental <.react> file
+  fasta               <.fasta> to pull sequences from
+  motif               Input file or motif
+
+optional arguments:
+  -h, --help          show this help message and exit
+  -fp FP              [default = 5] Bases to include 5' of the motif
+  -tp TP              [default = 5] Bases to include 3' of the motif
+  -restrict RESTRICT  <.txt > Limit analysis to these specific transcripts
+  -outdir OUTDIR      [default = motif_out] Out Directory
+  -fastaout           Write windows to <.fasta> format as well
+  -reactout           Write accompanying <.react> files as well
+```
+
 ## Planned Updates
 * make_PPV_csv.py will be merged into structure_statisics.py<br><br>
 * Features that are exclusive to <.react> files have been requested to be available for <.rtsc>,
@@ -100,7 +132,7 @@ or vice-versa. I.E, rather than making a separate module for react_correlation t
 both features will be included in a single module; modules that work on both will be prefixed with 'rx'. 
 So react_correlation and rtsc_correlationwould become rx_correlation, thus 
 deprecating the old module(s) entirely.<br><br>
-* Excessive amounts of wildcards used in react_static_motif.py result in a very
+* Excessive amounts of wildcards used in react_motif.py result in a very
 computationally expensive and slow search, when the targeted motif may actually not be
 specific, i.e. the user just wants any region of length n with a given base composition,
 i.e. all stretches of only G and C of over 10 bases in length. 

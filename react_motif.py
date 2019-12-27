@@ -92,7 +92,7 @@ def main():
             structure_io.write_fasta(fasta_dict,os.path.join(args.outdir,out_fasta_name))
 
         #Write out motif <.react>
-        if args.fastaout:
+        if args.reactout:
             control_out = {c.generate_name():c.A_react() for c in report.records.values()}
             exp_out = {e.generate_name():e.B_react() for e in report.records.values()}
             control_new = '_'.join([args.control.replace('.react',''),motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
