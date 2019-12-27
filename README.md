@@ -102,8 +102,10 @@ or a flat text file containing multiple motifs, one per line, can be entered. Ba
 up or down stream of the motif can also be included in the output (-fp, -tp, default 5). 
 In addition to the default <.csv> output, a new <.fasta> and corresponding <.react>s of the 
 motif containing regions can be created (-fastaout, -reactout), where these files could be 
-useful for guiding folding algorithms to regions containing motifs of interest.This module replaces 
-react_static_motif.py entirely.
+useful for guiding folding algorithms to regions containing motifs of interest. This module 
+replaces react_static_motif.py entirely; all perumations of wildcard containing motifs
+are now logged to a single file (<.csv>, <.fasta>,<.react>), and these files are written to 
+a new directory, thereby enhancing organization.
 
 **Usage**
 ```
