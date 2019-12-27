@@ -40,7 +40,7 @@ def write_motif_csv(motif_report,outfile='file.csv'):
  
 #Main Function
 def main():
-    parser = argparse.ArgumentParser(description='Searches and returns reactivity vectors for target motifs')
+    parser = argparse.ArgumentParser(description='Searches for reactivity differences around given motifs')
     parser.add_argument('control',type=str,help='control <.react> file')
     parser.add_argument('experimental',type=str,help='experimental <.react> file')
     parser.add_argument('fasta',type=str,help='<.fasta> to pull sequences from')
