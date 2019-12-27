@@ -86,6 +86,6 @@ into the SF pipeline in the future. STAR contains much better internal logging a
 Bowtie2 support will be maintianed for users that do not have access to a machine
 with enough RAM run STAR.<br><br>
 * Hardware guides (i.e. Linux workstation builds) for those labs
-looking to get a machine to do bioinformatics may be created.
+looking to get a machine to do bioinformatics may be created.<br><br>
 * Merge check_ligation_bias.py and rtsc_specificity.py into a new module.
 
