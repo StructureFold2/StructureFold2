@@ -12,4 +12,4 @@ The functionality of this script has been added to the new structure_statistics.
 The functionality of this script has been added to the new structure_statistics.py.
 
 ## react_static_motif.py
-This module has been replaced by react_motif.py
+This module has been replaced by react_motif.py.
