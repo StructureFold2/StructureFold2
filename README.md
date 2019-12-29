@@ -127,6 +127,26 @@ optional arguments:
   -reactout           Write accompanying <.react> files as well
 ```
 
+### react_heat_correct.py
+Probing reagents can be more reactive at higher temperatures, thus one may wish to 
+normalize this effect out from any two pairwise <.react>s derived from different temperatures. 
+For any two such <.react> files generated against the same transcriptome, the sum of all base 
+reactivties will be summed for both files, and used to scale the the lower/higher temperature file
+up/down respectively, such that the total amount of reactivity on all bases in both files is the same. 
+
+**Usage**
+```
+Corrects two <.react>s for differential temperature
+
+positional arguments:
+  lower           lower temp <.react> file
+  higher          higher temp <.react> file
+
+optional arguments:
+  -h, --help      show this help message and exit
+  -suffix SUFFIX  [default = corrected] Suffix for out files
+```
+
 ## Planned Updates
 * make_PPV_csv.py will be merged into structure_statisics.py<br><br>
 * Features that are exclusive to <.react> files have been requested to be available for <.rtsc>,

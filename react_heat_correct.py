@@ -24,7 +24,7 @@ def apply_correction(react_dict,correction):
 
 #Main Function
 def main():
-    parser = argparse.ArgumentParser(description='Corrects for temperature differentially derived reacts')
+    parser = argparse.ArgumentParser(description='Corrects two <.react>s for differential temperature')
     parser.add_argument('lower',type=str,help='lower temp <.react> file')
     parser.add_argument('higher',type=str,help='higher temp <.react> file')
     parser.add_argument('-suffix',type=str,default='corrected',help='[default = corrected] Suffix for out files')
