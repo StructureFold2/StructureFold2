@@ -28,10 +28,10 @@ but the new more consistent reporting of <.ct> files allows both strandedness an
 MFE folds, thus making one module sufficient for all tasks involving <.ct> files. 
 
 Fused mode (-mode F) summarizes one or multiple directories, generating a single <.csv> organized by 
-transcript detailing strandedness and DeltaG. When using multiple directories, the names of the directories 
-must be different. If your transcript names contain underscores, input the number they contain (-offset, all modes). 
+transcript detailing transcript strandedness and DeltaG. When using multiple directories, the names of the directories 
+must be different. If your transcript names contain underscores, input the number they contain (-offset). 
 Raw mode (-mode R) instead operates on a single directory and generates a similar single <.csv> instead organized by 
-the files names contained in the directory, and may be of use when it is hard to automatically parse transcript names. 
+the files contained in the directory, and may be of use when it is hard to automatically parse transcript names. 
 By default, 'NA' will be logged as the DetlaG for <.ct> files that do not contain a DeltaG value; this value is 
 configurable (-na). PPV mode (-P) do a full directory-wise PPV calculation on every shared transcript between every 
 two possible pairs of directories (-d) entered using [RNAStructure](https://rna.urmc.rochester.edu/RNAstructure.html)'s 
