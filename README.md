@@ -33,9 +33,10 @@ must be different. If your transcript names contain underscores, input the numbe
 Raw mode (-mode R) instead operates on a single directory and generates a similar single <.csv> instead organized by 
 the files contained in the directory, and may be of use when it is hard to automatically parse transcript names. 
 By default, 'NA' will be logged as the DetlaG for <.ct> files that do not contain a DeltaG value; this value is 
-configurable (-na). PPV mode (-P) do a full directory-wise PPV calculation on every shared transcript between every 
+configurable (-na). PPV mode (-P) does a full directory-wise PPV calculation on every shared transcript between every 
 two possible pairs of directories (-d) entered using [RNAStructure](https://rna.urmc.rochester.edu/RNAstructure.html)'s 
-scorer program, which must be installed for this mode to work. All results will be summed into a single <.csv> report file. 
+scorer program, which must be installed for this mode to work. All results will be summed into a single <.csv> report file.
+In both Fused and PPV mode, the directories used do not have to contain perfectly symmetrical sets of <.ct> files.
 
 **Usage**
 ```
