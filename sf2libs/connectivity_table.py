@@ -1,3 +1,5 @@
+#For reading Connectivity Tables, <.ct>
+
 import os
 import glob
 import re
