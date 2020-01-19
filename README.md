@@ -153,17 +153,47 @@ optional arguments:
   -suffix SUFFIX  [default = corrected] Suffix for out files
 ```
 
+### react_composition.py
+Excessive amounts of wildcards used in react_motif.py result in a very computationally 
+expensive and slow search, when the targeted motif may actually not be specific. If the 
+user just wants any region of length n with a given base composition, for example all 
+stretches of only G and C of over 10 bases in length, a different search method may be 
+better suited for the task. react_composition.py addresses this demand, and functions in a similar fashion 
+to react_motif.py. Instead of providing a motif, or a list of motifs with wildcards, windows
+of a given length (-size) containing at least a specified percentage (-perc) of given bases 
+(-bases) are found, and all reactivity changes in and around them are resolved and subsequently 
+logged to a <.csv>. As with react_motif.py, these windows may be logged to fasta (-fastaout) format
+and/or as react files.
+
+**Usage**
+```
+Finds reactivity differences in windows of a given size and composition
+
+positional arguments:
+  control             control <.react> file
+  experimental        experimental <.react> file
+  fasta               <.fasta> to pull sequences from
+  bases               Bases to query (i.e.'GC' or 'AT')
+
+optional arguments:
+  -h, --help          show this help message and exit
+  -size SIZE          [default = 8] Size of window
+  -perc PERC          [default = 1.0] Percent specified bases
+  -unique             [default = True] Remove overlapping windows
+  -fp FP              [default = 5] Bases to include 5' of the motif
+  -tp TP              [default = 5] Bases to include 3' of the motif
+  -restrict RESTRICT  <.txt > Limit analysis to these specific transcripts
+  -fastaout           Write windows to <.fasta> format as well
+  -reactout           Write accompanying <.react> files as well
+```
+
+
 ## Planned Updates
 * Features that are exclusive to <.react> files have been requested to be available for <.rtsc>,
 or vice-versa. I.E, rather than making a separate module for react_correlation to complement rtsc_correlation,
 both features will be included in a single module; modules that work on both will be prefixed with 'rx'. 
 So react_correlation and rtsc_correlationwould become rx_correlation, thus 
 deprecating the old module(s) entirely.<br><br>
-* Excessive amounts of wildcards used in react_motif.py result in a very
-computationally expensive and slow search, when the targeted motif may actually not be
-specific, i.e. the user just wants any region of length n with a given base composition,
-i.e. all stretches of only G and C of over 10 bases in length. 
-A new mode supporting this will be added.<br><br>
 * Add support for [STAR](https://github.com/alexdobin/STAR) into fastq_mapper.py. STAR is **much** faster than 
 [Bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml), and will be integrated
 into the SF pipeline in the future. STAR contains much better internal logging as well. 
