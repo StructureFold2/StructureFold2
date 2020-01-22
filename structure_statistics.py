@@ -104,7 +104,7 @@ def write_out_ppv(ppv_data,fyle='out_ppv.csv'):
     with open(fyle,'w') as g:
         g.write(header+'\n')
         for transcript, sub in sorted(ppv_data.items()):
-           line=','.join([transcript]+[sub[key] if key in sub else 'NA' for key in keys])
+           line=','.join([transcript]+[sub.get(key,'NA') for key in keys])
            g.write(line+'\n')
 
 def main():
