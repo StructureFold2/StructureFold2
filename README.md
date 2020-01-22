@@ -200,5 +200,7 @@ into the SF pipeline in the future. STAR contains much better internal logging a
 Bowtie2 support will be maintianed for users that do not have access to a machine
 with enough RAM run STAR.<br><br>
 * Hardware guides (i.e. Linux workstation builds) for those labs
-looking to get a machine to do bioinformatics may be created.
+looking to get a machine to do bioinformatics may be created.<br><br>
+* batch_fold_rna.py will be completely reworked to be more intuative and efficient. Alloting one thread per fold
+works fine for a pool of smaller RNAs, but comitting only one thread on on larger RNAs really slows things down.
 
