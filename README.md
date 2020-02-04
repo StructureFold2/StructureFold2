@@ -187,6 +187,34 @@ optional arguments:
   -reactout           Write accompanying <.react> files as well
 ```
 
+### react_multi_motif.py
+Instead of searching for areas of interest by composition (react_composition) or a single specified motif (react_motif), react_multi_motif
+searches for areas featuring any of several (-mn, default = 3) smaller non-overlapping sub-motifs within a given window (-mw, default=50), 
+otherwise sharing many of the settings and features similar modules. The -unique setting does not check if the 5'/3' regions 
+flanking these multi-motifs overlaps other meta-motifs or their respective flanking regions, rather it only prevents 
+the core multi-motifs themselves from overlapping.
+
+**Usage**
+```
+Searches for reactivity differences around given multi-motifs
+
+positional arguments:
+  control             control <.react> file
+  experimental        experimental <.react> file
+  fasta               <.fasta> to pull sequences from
+  motifs              multi-motif components
+
+optional arguments:
+  -h, --help          show this help message and exit
+  -unique             [default = True] Remove overlapping multi-motifs
+  -mn MN              [default = 3] Number of multi-motifs required
+  -mw MW              [default = 50] Query window size for multi-motifs
+  -FP FP              [default = 30] Bases 5' of multi-motifs
+  -TP TP              [default = 30] Bases 3' of multi-motifs
+  -restrict RESTRICT  <.txt > Limit analysis to these specific transcripts
+  -fastaout           Write windows to <.fasta> format as well
+  -reactout           Write accompanying <.react> files as well
+```
 
 ## Planned Updates
 * Features that are exclusive to <.react> files have been requested to be available for <.rtsc>,
@@ -202,5 +230,5 @@ with enough RAM run STAR.<br><br>
 * Hardware guides (i.e. Linux workstation builds) for those labs
 looking to get a machine to do bioinformatics may be created.<br><br>
 * batch_fold_rna.py will be completely reworked to be more intuative and efficient. Alloting one thread per fold
-works fine for a pool of smaller RNAs, but comitting only one thread on on larger RNAs really slows things down.
-
+works fine for a pool of smaller RNAs, but comitting only one thread on on larger RNAs really slows things down.<br><br>
+* All motif modules may be merged into a single motif searching module with three modes (motif,compositon,multi-motif)
