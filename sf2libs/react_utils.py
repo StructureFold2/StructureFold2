@@ -19,13 +19,14 @@ class MotifEntry(object):
         return (self.transcript,self.query,self.start,self.end)
 
     def generate_seq(self):
-        return self.fp_seq+self.seq+self.tp_seq
+        temp = self.fp_seq+self.seq+self.tp_seq
+        return temp.replace('-','')
 
     def A_react(self):
-        return self.fp_A+self.A+self.tp_A
+        return filter(lambda R: R !='-',self.fp_A+self.A+self.tp_A)
  
     def B_react(self):
-        return self.fp_B+self.B+self.tp_B
+        return filter(lambda R: R !='-',self.fp_B+self.B+self.tp_B)
 
     def D_react(self):
         return self.fp_delta+self.delta+self.tp_delta
