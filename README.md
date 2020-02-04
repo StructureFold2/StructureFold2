@@ -231,4 +231,4 @@ with enough RAM run STAR.<br><br>
 looking to get a machine to do bioinformatics may be created.<br><br>
 * batch_fold_rna.py will be completely reworked to be more intuative and efficient. Alloting one thread per fold
 works fine for a pool of smaller RNAs, but comitting only one thread on on larger RNAs really slows things down.<br><br>
-* All motif modules may be merged into a single motif searching module with three modes (motif,compositon,multi-motif)
+* All motif modules may be merged into a single motif searching module with three modes (motif,composition,multi-motif)
