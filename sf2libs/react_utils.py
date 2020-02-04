@@ -168,6 +168,16 @@ def check_window_comp(seq,bases,percent):
     else:
         return False
 
+def remove_overlaps(windows):
+    '''Removes overlaps, anchoring on the left coords first'''
+    filtered = []
+    for win in windows:
+        if not filtered:
+            filtered.append(win)
+        elif win[0] > filtered[-1][1]:
+            filtered.append(win)
+    return filtered
+
 def composition_coords(seq,bases,percent,wsize=8,overlap=True):
     '''dimentional compute'''
     windows = [(seq[i:i+wsize],i,i+wsize) for i in range(0,len(seq)-wsize+1)]
@@ -176,13 +186,7 @@ def composition_coords(seq,bases,percent,wsize=8,overlap=True):
     if overlap:
         return windows
     else:
-        filtered = []
-        for win in windows:
-            if not filtered:
-                filtered.append(win)
-            elif win[0] > filtered[-1][1]:
-                filtered.append(win)
-        return filtered
+        return remove_overlaps(windows)
 
 #The standard DNA wildcard alphabet
 wildcards = {'N':['A','C','G','T'],
