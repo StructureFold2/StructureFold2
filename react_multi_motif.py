@@ -4,6 +4,7 @@
 import argparse
 from sf2libs import structure_io
 from sf2libs.react_utils import generate_motif_coords_basic,remove_overlaps,subtract_reacts,delta_metrics
+from sf2libs.basic_utils import flatten_list
 
 #Classes
 class MetaEntry(object):
@@ -110,10 +111,6 @@ def scrampler(seq,motifs,nmotif=3,dist=50,allow_meta_overlaps=False):
         keep_keys = remove_overlaps(sorted(collapsed.keys()))
         hyper_collapsed = {k:v for k, v in collapsed.items() if k in keep_keys}
         return sorted(hyper_collapsed.values())
-
-def flatten_list(nested_list):
-    '''flattens a list'''
-    return [lemon for lime in nested_list for lemon in lime]
 
 def write_meta_csv(motif_report,outfile='file.csv'):
     '''Writes out the default output'''
