@@ -156,10 +156,10 @@ def make_list_strict(mega_list):
     common_keys,new_list = {},[]
     while len(mega_list) !=0:
         item = mega_list[0]
-        if item[3] in common_keys:
+        if item[4] in common_keys:
             del mega_list[0]
         else:
-            common_keys[item[3]] = None
+            common_keys[item[4]] = None
             new_list.append(item)
             del mega_list[0]
     return new_list
