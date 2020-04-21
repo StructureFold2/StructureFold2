@@ -88,13 +88,13 @@ def main():
         #Write out motif <.fasta>
         if args.fastaout:
             out_fasta_name = out_name.replace('.csv','.fasta')
-            fasta_dict = {r.generate_name():r.generate_seq() for r in report.records.values()}
+            fasta_dict = {r.generate_name():r.generate_seq(True) for r in report.records.values()}
             structure_io.write_fasta(fasta_dict,os.path.join(args.outdir,out_fasta_name))
 
         #Write out motif <.react>
         if args.reactout:
-            control_out = {c.generate_name():c.A_react() for c in report.records.values()}
-            exp_out = {e.generate_name():e.B_react() for e in report.records.values()}
+            control_out = {c.generate_name():c.A_react(True) for c in report.records.values()}
+            exp_out = {e.generate_name():e.B_react(True) for e in report.records.values()}
             control_new = '_'.join([args.control.replace('.react',''),motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
             exp_new = '_'.join([args.experimental.replace('.react',''),motif,str(args.fp)+'fp',str(args.tp)+'tp'])+'.react'
             structure_io.write_react(control_out,os.path.join(args.outdir,control_new))
