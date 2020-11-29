@@ -56,7 +56,7 @@ The functionality of coverage_overlap.py has been combined into rtsc_coverage.py
 overall organization. Coverage overlap files are now generated concurently to the coverage calculation (-ol). 
 Input file selection is now more precise for complex experimental designs (-f). Even in cases where
 only a single condition is being probed, an overlap file is still used for restricting downstream
-analyses to transcripts meeting or exceeding the coverage threshold (-ot).
+analyses to those transcripts meeting or exceeding the coverage threshold (-ot).
 
 **Usage**
 ```
