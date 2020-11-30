@@ -57,7 +57,7 @@ def program_check(prog):
 
 def read_ppv(ppv_file):
     '''Reads a PPV file'''
-    fyle_name = ppv_file.split(os.sep)[-1].strip('.txt')
+    fyle_name = ppv_file.split(os.sep)[-1].replace('.txt','')
     accepted,predicted,transcript = fyle_name.split('~')
     with open(ppv_file,'r') as f:
         lines = f.readlines()
