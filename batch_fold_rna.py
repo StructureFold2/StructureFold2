@@ -152,7 +152,7 @@ def fold_RNA(mode, p_type, id_s, temperature, slope, intercept, path, thres):
                     
         
             else:
-                if not threshold:
+                if not thres:
                     os.system(os.path.join(rp, "partition")+" "+os.path.join(path,id_s+"_temp.fa")+" -T "+temperature+" "+"-sh "+os.path.join(path,id_s+"_constraint.txt")+" -si "+intercept+" -sm "+slope+" "+os.path.join(bp_path, t+"_"+temperature+"_restraint.pfs")+" > /dev/null")
 
                 else:
